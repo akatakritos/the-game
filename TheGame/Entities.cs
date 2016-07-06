@@ -90,4 +90,16 @@ namespace TheGame
 
 
     }
+
+    public class PointsResponse
+    {
+        public string PlayerName { get; set; }
+        public string AvatarUrl { get; set; }
+        public List<Badge> Badges { get; set; }
+        public List<string> Effects { get; set; }
+        public string Title { get; set; }
+        public int Points { get; set; }
+        public int ItemsGained { get; set; }
+        public int ItemsUsed { get; set; }
+    }
 }

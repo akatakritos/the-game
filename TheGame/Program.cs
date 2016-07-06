@@ -68,6 +68,8 @@ namespace TheGame
                     _state.LastPoints = DateTime.UtcNow;
                     response.LogMessages();
 
+                    _state.Effects = GetEffects();
+
                     if (response.Item != null)
                     {
                         foreach (var fields in response.Item.Fields)
@@ -87,40 +89,26 @@ namespace TheGame
                     Log.Write(e.ToString());
                 }
 
+                if (_state.NextItem == null || _state.NextItem.Mode == ItemMode.Automatic)
+                {
+                    var optimalNextMove = GetOptimalNextItem();
+                    _state.NextItem = optimalNextMove;
+                }
 
-                if (_rules.CanUseItem())
+
+                if (_rules.CanUseItem() && _state.NextItem != null)
                 {
                     try
                     {
-                        if (_state.UseNext != null)
-                        {
-                            Log.Write($"Manually using {_state.UseNext.Item.Name} on '{_state.UseNext.Target}'.");
-                            var useResult = UseItem(_state.UseNext.Item, _state.UseNext.Target);
-
-                            _state.LastMessages.Insert(0, $"Automatically used {_state.UseNext.Item.Name}");
-                            _state.LastMessages.InsertRange(0, useResult.Messages);
-
-                            _state.UseNext = null;
-                        }
-                        else if (GetLeaders().Select(l => l.PlayerName).Contains(Me))
-                        {
-                            //Favor defense first since im on leaderboard
-                            if (!TryDefensive())
-                            {
-                                if (!TryPowerups())
-                                    TryAttack();
-                            }
-                        }
-                        else
-                        {
-                            if (!TryAttack())
-                                TryPowerups();
-                        }
+                        var useResult = UseItem(_state.NextItem.Item, _state.NextItem.Target);
+                        _state.LastMessages.Insert(0, $"{_state.NextItem.Mode}ly used {_state.NextItem.Item.Name} on '{_state.NextItem.Target}'");
+                        _state.LastMessages.InsertRange(0, useResult.Messages);
+                        _state.NextItem = null;
                     }
                     catch (AggregateException e)
                     {
                         Log.Write(e.Message);
-                        _state.UseNext = null;
+                        _state.NextItem = null;
                     }
                 }
 
@@ -129,58 +117,100 @@ namespace TheGame
             }
         }
 
-        private static void LogScore()
+        private static string[] GetEffects()
         {
-            File.AppendAllText("scores.csv", $"{DateTime.UtcNow:O},{_state.Points}");
+            try
+            {
+                var response = JsonConvert.DeserializeObject<PointsResponse>(Get("/points/mburke"));
+                return response.Effects?.ToArray() ?? new string[0];
+            }
+            catch (AggregateException ex)
+            {
+                Log.Write("Error getting effects");
+                Log.Write(ex.Message);
+                return new string[0];
+            }
         }
 
-        public static bool TryDefensive()
+        public static NextItem GetOptimalNextItem()
+        {
+            if (GetLeaders().Select(l => l.PlayerName).Contains(Constants.Me))
+            {
+                //Favor defense first since im on leaderboard
+                var defensive = TryDefensive();
+                if (defensive != null)
+                    return defensive;
+
+                var powerup = TryPowerups();
+                if (powerup != null)
+                    return powerup;
+
+                var attack = TryAttack();
+                if (attack != null)
+                    return attack;
+            }
+            else
+            {
+                //hoard defensive items
+
+                var powerup = TryPowerups();
+                if (powerup != null)
+                    return powerup;
+
+                var attack = TryAttack();
+                if (attack != null)
+                    return attack;
+            }
+
+            return null;
+        }
+
+        public static NextItem TryDefensive()
+        {
+            if (_state.DefensiveItems.Any())
+            {
+                var item = _state.DefensiveItems.First();
+                return new NextItem()
+                {
+                    Item = item,
+                    Target = null,
+                    Mode = ItemMode.Automatic
+                };
+            }
+
+            return null;
+        }
+
+        private static NextItem TryPowerups()
         {
             if (_state.PowerUpItems.Any())
             {
                 var item = _state.PowerUpItems.First();
-                Log.Write($"Auto applying {item.Name} to myself.");
-
-                var useResult = UseItem(item);
-                _state.LastMessages.Insert(0, $"Automatically used {item.Name}");
-                _state.LastMessages.InsertRange(0, useResult.Messages);
-                return true;
+                return new NextItem()
+                {
+                    Item = item,
+                    Target = null,
+                    Mode = ItemMode.Automatic
+                };
             }
 
-            return false;
+            return null;
         }
 
-        private static bool TryPowerups()
-        {
-            if (_state.PowerUpItems.Any())
-            {
-                var item = _state.PowerUpItems.First();
-                Log.Write($"Auto applying {item.Name} to myself.");
-
-                var useResult = UseItem(item);
-                _state.LastMessages.Insert(0, $"Automatically used {item.Name}");
-                _state.LastMessages.InsertRange(0, useResult.Messages);
-                return true;
-            }
-
-            return false;
-        }
-
-        private static bool TryAttack()
+        private static NextItem TryAttack()
         {
             if (_state.AttackItems.Any())
             {
                 var item = _state.AttackItems.First();
-                Log.Write($"Auto attacking someone with {item.Name}");
-
-                var useResult = Attack(item);
-                _state.LastMessages.Insert(0, $"Automatically used {item.Name} against {useResult.TargetName}");
-                _state.LastMessages.InsertRange(0, useResult.Messages);
-
-                return true;
+                return new NextItem()
+                {
+                    Item = item,
+                    Target = FindOptimumOpponent(item),
+                    Mode = ItemMode.Automatic
+                };
             }
 
-            return false;
+            return null;
         }
 
         public static void PickItem()
@@ -203,10 +233,11 @@ namespace TheGame
             int choice = int.Parse(pieces[0]);
             string target = pieces.Length > 1 ? pieces[1] : null;
 
-            _state.UseNext = new NextItem()
+            _state.NextItem = new NextItem()
             {
                 Item = _state.Items[choice],
-                Target = target
+                Target = target,
+                Mode = ItemMode.Manual
             };
         }
 
@@ -220,9 +251,9 @@ namespace TheGame
                 Console.WriteLine("> " + msg);
             }
 
-            if (_state.UseNext != null)
+            if (_state.NextItem != null)
             {
-                Console.WriteLine($"Manual Attack Scheduled: {_state.UseNext.Item.Name} against '{_state.UseNext.Target}'");
+                Console.WriteLine($"{_state.NextItem.Mode} Item Scheduled: {_state.NextItem.Item.Name} on '{_state.NextItem.Target}'");
             }
 
             var remaining = _rules.NextItemTime - DateTime.UtcNow;
@@ -286,13 +317,6 @@ namespace TheGame
         private static void SaveState(GameState state)
         {
             File.WriteAllText("state.json", JsonConvert.SerializeObject(state));
-        }
-
-        private static UseItemResult Attack(GameItem item)
-        {
-            var target = FindOptimumOpponent(item);
-            return UseItem(item, target);
-
         }
 
         private static string FindOptimumOpponent(GameItem item)
