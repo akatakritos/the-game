@@ -61,28 +61,40 @@ namespace TheGame
 
                 try
                 {
-                    var result = Post("/points");
-                    var response = JsonConvert.DeserializeObject<RootObject>(result);
-                    _state.Points = response.Points;
-                    _state.LastMessages = response.Messages;
-                    _state.LastPoints = DateTime.UtcNow;
-                    response.LogMessages();
-
-                    _state.Effects = GetEffects();
-
-                    if (response.Item != null)
+                    if (!_rules.HasNegativeEffect)
                     {
-                        foreach (var fields in response.Item.Fields)
+                        var result = Post("/points");
+                        var response = JsonConvert.DeserializeObject<RootObject>(result);
+                        _state.Points = response.Points;
+                        _state.LastMessages = response.Messages;
+                        response.LogMessages();
+
+                        _state.Effects = GetEffects();
+
+                        if (response.Item != null)
                         {
-                            _state.Items.Add(new GameItem()
+                            foreach (var fields in response.Item.Fields)
                             {
-                                Name = fields.Name,
-                                Description = fields.Description,
-                                Id = fields.Id,
-                                Rarity = fields.Rarity
-                            });
+                                _state.Items.Add(new GameItem()
+                                {
+                                    Name = fields.Name,
+                                    Description = fields.Description,
+                                    Id = fields.Id,
+                                    Rarity = fields.Rarity
+                                });
+                            }
                         }
                     }
+                    else
+                    {
+                        _state.LastMessages = new List<string>()
+                        {
+                            "Has a negative state, waiting"
+                        };
+                    }
+
+                    // last loop
+                    _state.LastPoints = DateTime.UtcNow;
                 }
                 catch (Exception e)
                 {
@@ -128,7 +140,7 @@ namespace TheGame
             {
                 Log.Write("Error getting effects");
                 Log.Write(ex.Message);
-                return new string[0];
+                return _state.Effects;
             }
         }
 
@@ -300,7 +312,7 @@ namespace TheGame
             catch (AggregateException e)
             {
                 // oh well
-                return LeadersCache;
+                return LeadersCache ?? new LeaderboardResult[0];
             }
         }
 
@@ -347,12 +359,28 @@ namespace TheGame
 
         private static UseItemResult UseItem(GameItem item, string target = null)
         {
+            var result = TryUseItem(item, target);
+
             _state.Items.Remove(item);
-
-            var result = UseItem(item.Id, target);
             _state.LastItemUse = DateTime.UtcNow;
-
             return result;
+        }
+
+        private static UseItemResult TryUseItem(GameItem item, string target = null)
+        {
+            for (int tries = 0; tries < 3; tries++)
+            {
+                Log.Write($"Using {item.Name} - Try {tries + 1}");
+                var result = UseItem(item.Id, target);
+                if (result != UseItemResult.NullObject)
+                {
+                    return result;
+                }
+
+                Thread.Sleep(250);
+            }
+
+            return UseItemResult.NullObject;
         }
 
         private static UseItemResult UseItem(string itemId, string target = null)
@@ -366,6 +394,10 @@ namespace TheGame
             var response = Post(url);
 
             var result = JsonConvert.DeserializeObject<UseItemResult>(response);
+            if (result == null)
+            {
+                result = UseItemResult.NullObject;
+            }
             if (result.BonusItems.Any())
             {
                 _state.Items.AddRange(result.BonusItems);

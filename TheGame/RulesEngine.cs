@@ -26,4 +26,6 @@ public class RulesEngine
     }
 
     public const int PointsRateLimitMS = 1000;
+
+    public bool HasNegativeEffect => false;// _state.Effects.Contains("Holy Water");
 }

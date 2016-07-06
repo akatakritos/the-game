@@ -44,7 +44,7 @@ namespace TheGame
     {
         public string PlayerName { get; set; }
         public string AvatarUrl { get; set; }
-        public int Points { get; set; }
+        public long Points { get; set; }
         public string Title { get; set; }
         public List<object> Effects { get; set; }
         public List<Badge> Badges { get; set; }
@@ -53,6 +53,13 @@ namespace TheGame
 
     public class UseItemResult
     {
+        public static readonly UseItemResult NullObject = new UseItemResult()
+        {
+            Messages = new List<string>() { "Empty Response" },
+            Points = 0,
+            TargetName = ""
+        };
+
         public List<string> Messages { get; set; }
         public string TargetName { get; set; }
         public int Points { get; set; }

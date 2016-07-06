@@ -70,7 +70,7 @@ namespace Logger
 
         private static void Sleep()
         {
-            var nextLoop = LastLoop.AddSeconds(1);
+            var nextLoop = LastLoop.AddSeconds(10);
             var duration = nextLoop - DateTime.UtcNow;
             if (duration.TotalMilliseconds < 0)
                 return;
@@ -80,7 +80,15 @@ namespace Logger
 
         private static void LogCurrentEffects()
         {
-            var effects = JsonConvert.DeserializeObject<EffectResult[]>(_client.GetStringAsync("/effects/mburke").Result);
+            var result = _client.GetAsync("/effects/mburke").Result;
+            if (!result.IsSuccessStatusCode)
+            {
+                var body = result.Content.ReadAsStringAsync().Result;
+                Console.WriteLine($"/effects/mburke {result.StatusCode} : {body}");
+                return;
+            }
+
+            var effects = JsonConvert.DeserializeObject<EffectResult[]>(result.Content.ReadAsStringAsync().Result);
             const string insert = "INSERT INTO EffectLog (Timestamp, Creator, Targets, EffectName, EffectType, Duration, VoteGain, Description, StatusEffect, StatusEffectDuration) VALUES (@Timestamp, @Creator, @Targets, @EffectName, @EffectType, @Duration, @VoteGain, @Description, @StatusEffect, @StatusEffectDuration)";
             using (var connection = OpenConnection())
             {
@@ -97,7 +105,15 @@ namespace Logger
 
         private static void LogPoints()
         {
-            var response = JsonConvert.DeserializeObject<PointResponse>(_client.GetStringAsync("/points/mburke").Result);
+            var result = _client.GetAsync("/points/mburke").Result;
+            if (!result.IsSuccessStatusCode)
+            {
+                var body = result.Content.ReadAsStringAsync().Result;
+                Console.WriteLine($"/points/mburke {result.StatusCode} : {body}");
+                return;
+            }
+
+            var response = JsonConvert.DeserializeObject<PointResponse>(result.Content.ReadAsStringAsync().Result);
             const string insert = "INSERT INTO PointLog (Timestamp, PlayerName, Badges, Effects, Title, Points, ItemsGained, ItemsUsed) VALUES (@Timestamp, @PlayerName, @Badges, @Effects, @Title, @Points, @ItemsGained, @ItemsUsed)";
             using (var connection = OpenConnection())
             {
