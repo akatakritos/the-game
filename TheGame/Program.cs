@@ -8,8 +8,6 @@ using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-using log4net;
-
 using Newtonsoft.Json;
 
 namespace TheGame
@@ -56,6 +54,7 @@ namespace TheGame
             while (true)
             {
                 SaveState(_state);
+                //LogScore();
 
                 if (Console.KeyAvailable)
                     return Console.ReadKey(true);
@@ -66,7 +65,7 @@ namespace TheGame
                     var response = JsonConvert.DeserializeObject<RootObject>(result);
                     _state.Points = response.Points;
                     _state.LastMessages = response.Messages;
-                    _state.LastPoints = DateTime.Now;
+                    _state.LastPoints = DateTime.UtcNow;
                     response.LogMessages();
 
                     if (response.Item != null)
@@ -106,16 +105,19 @@ namespace TheGame
                         else if (GetLeaders().Select(l => l.PlayerName).Contains(Me))
                         {
                             //Favor defense first since im on leaderboard
-                            if (!TryDefend())
-                                TryAttack();
+                            if (!TryDefensive())
+                            {
+                                if (!TryPowerups())
+                                    TryAttack();
+                            }
                         }
                         else
                         {
                             if (!TryAttack())
-                                TryDefend();
+                                TryPowerups();
                         }
                     }
-                    catch (Exception e)
+                    catch (AggregateException e)
                     {
                         Log.Write(e.Message);
                         _state.UseNext = null;
@@ -127,11 +129,32 @@ namespace TheGame
             }
         }
 
-        private static bool TryDefend()
+        private static void LogScore()
         {
-            if (_state.DefenseItems.Any())
+            File.AppendAllText("scores.csv", $"{DateTime.UtcNow:O},{_state.Points}");
+        }
+
+        public static bool TryDefensive()
+        {
+            if (_state.PowerUpItems.Any())
             {
-                var item = _state.DefenseItems.First();
+                var item = _state.PowerUpItems.First();
+                Log.Write($"Auto applying {item.Name} to myself.");
+
+                var useResult = UseItem(item);
+                _state.LastMessages.Insert(0, $"Automatically used {item.Name}");
+                _state.LastMessages.InsertRange(0, useResult.Messages);
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool TryPowerups()
+        {
+            if (_state.PowerUpItems.Any())
+            {
+                var item = _state.PowerUpItems.First();
                 Log.Write($"Auto applying {item.Name} to myself.");
 
                 var useResult = UseItem(item);
@@ -192,12 +215,18 @@ namespace TheGame
             Console.Clear();
             ShowLeaders();
 
-            Console.WriteLine($"You: {_state.Points}");
-
             foreach (var msg  in _state.LastMessages)
             {
                 Console.WriteLine("> " + msg);
             }
+
+            if (_state.UseNext != null)
+            {
+                Console.WriteLine($"Manual Attack Scheduled: {_state.UseNext.Item.Name} against '{_state.UseNext.Target}'");
+            }
+
+            var remaining = _rules.NextItemTime - DateTime.UtcNow;
+            Console.WriteLine($"{remaining.TotalSeconds} seconds until Item is ready");
 
             if (_rules.CanUseItem())
             {
@@ -221,10 +250,10 @@ namespace TheGame
 
         private static IEnumerable<LeaderboardResult> GetLeaders()
         {
-            if (LeadersCache == null || LeaderCacheExpires < DateTime.Now)
+            if (LeadersCache == null || LeaderCacheExpires < DateTime.UtcNow)
             {
                 LeadersCache = GetLeadersImpl();
-                LeaderCacheExpires = DateTime.Now.AddSeconds(30);
+                LeaderCacheExpires = DateTime.UtcNow.AddSeconds(10);
             }
 
             return LeadersCache;
@@ -261,17 +290,43 @@ namespace TheGame
 
         private static UseItemResult Attack(GameItem item)
         {
-            var target = GetLeaders().Where(l => _rules.CanAttack(l.PlayerName)).Select(l => l.PlayerName).FirstOrDefault() ?? "eweis";
+            var target = FindOptimumOpponent(item);
             return UseItem(item, target);
 
         }
+
+        private static string FindOptimumOpponent(GameItem item)
+        {
+            var leaderboard = GetLeaders().ToArray();
+
+            var nextUp = GetNextUp(leaderboard);
+            if (nextUp != null)
+            {
+                return nextUp;
+            }
+
+            return leaderboard.FirstOrDefault(l => l.PlayerName != Me)?.PlayerName ?? "eweiss";
+        }
+
+        private static string GetNextUp(LeaderboardResult[] leaderboard)
+        {
+            var i = Array.IndexOf(leaderboard.Select(l => l.PlayerName).ToArray(), Me);
+            if (i > 0)
+            {
+                return leaderboard[i - 1].PlayerName;
+            }
+
+            return null;
+        }
+
+
 
         private static UseItemResult UseItem(GameItem item, string target = null)
         {
             _state.Items.Remove(item);
 
             var result = UseItem(item.Id, target);
-            _state.LastItemUse = DateTime.Now;
+            _state.LastItemUse = DateTime.UtcNow;
 
             return result;
         }
@@ -287,9 +342,9 @@ namespace TheGame
             var response = Post(url);
 
             var result = JsonConvert.DeserializeObject<UseItemResult>(response);
-            if (result.BonusItem != null)
+            if (result.BonusItems.Any())
             {
-                _state.Items.Add(result.BonusItem);
+                _state.Items.AddRange(result.BonusItems);
             }
 
             result.LogMessages();
@@ -315,159 +370,12 @@ namespace TheGame
 
         private static void Sleep()
         {
-            var nextTick = _state.LastPoints.AddSeconds(1);
-            var sleepTime = nextTick - DateTime.Now;
+            var nextTick = _state.LastPoints.AddMilliseconds(RulesEngine.PointsRateLimitMS);
+            var sleepTime = nextTick - DateTime.UtcNow;
             if (sleepTime.TotalMilliseconds < 0)
                 sleepTime = TimeSpan.FromMilliseconds(0);
 
             Thread.Sleep(sleepTime);
         }
-    }
-
-    public class GameState
-    {
-        public static readonly string[] SafeItemNames = { "Biggs", "Tanooki Suit", "Wedge", "Bo Jackson", "UUDDLRLRBA", "Mushroom", "Treasure Chest", "Carbuncle", "Gold Ring", "Roger Wilco", "Da Da Da Da Daaa Da DAA da da", "Banana Peel", "Warthog", "Buffalo", "Red Crystal", "Moogle", "Pokeball" };
-        public static readonly string[] AttackItemNames = { "Fire Flower", "Red Shell", "Cardboard Box", "Charizard", "Hard Knuckle", "Crowbar", "Green Shell", "Hadouken", "Holy Water", "Pizza", "Blue Shell", "Fus Ro Dah", "Buster Sword", "Box of Bees", "Get Over Here" };
-        public static readonly string[] UserWhitelist = { "espies", "nhotalli", "rvanbelk", "revans" };
-
-        public int Points { get; set; }
-        public DateTime LastItemUse = DateTime.MinValue;
-        public DateTime LastPoints = DateTime.MinValue;
-        public List<GameItem> Items { get; set; } = new List<GameItem>();
-        public List<string> LastMessages { get; set; } = new List<string>();
-        public IEnumerable<GameItem> DefenseItems => Items.Where(i => SafeItemNames.Contains(i.Name));
-        public IEnumerable<GameItem> AttackItems => Items.Where(i => AttackItemNames.Contains(i.Name));
-        public NextItem UseNext { get; set; }
-    }
-
-    public class NextItem
-    {
-        public GameItem Item { get; set; }
-        public string Target { get; set; }
-    }
-
-    public class RulesEngine
-    {
-        private readonly GameState _state;
-
-        public RulesEngine(GameState state)
-        {
-            _state = state;
-        }
-
-        public bool CanUseItem()
-        {
-            return DateTime.Now - _state.LastItemUse > TimeSpan.FromMinutes(1);
-        }
-
-        public bool CanAttack(string name)
-        {
-            return !GameState.UserWhitelist.Contains(name);
-        }
-    }
-
-    public class GameItem
-    {
-        public string Name { get; set; }
-        public string Id { get; set; }
-        public string Description { get; set; }
-        public int Rarity { get; set; }
-
-        public override string ToString()
-        {
-            return $"{Name} - {Description}";
-        }
-    }
-
-    public static class Log
-    {
-        private static ILog _log = LogManager.GetLogger("Main");
-
-        public static void Write(string msg)
-        {
-            _log.Info(msg);
-        }
-    }
-
-
-    public class Field
-    {
-        public string Name { get; set; }
-        public string Id { get; set; }
-        public int Rarity { get; set; }
-        public string Description { get; set; }
-    }
-
-    public class Item
-    {
-        public string Case { get; set; }
-        public List<Field> Fields { get; set; }
-    }
-
-    public class RootObject
-    {
-        public List<string> Messages { get; set; }
-        public Item Item { get; set; }
-        public int Points { get; set; }
-        public List<object> Effects { get; set; }
-        public List<object> Badges { get; set; }
-
-        public void LogMessages()
-        {
-            Log.Write("\r\n > " + string.Join("\r\n > ", Messages));
-        }
-    }
-
-    public class Badge
-    {
-        public string BadgeName { get; set; }
-    }
-
-    public class LeaderboardResult
-    {
-        public string PlayerName { get; set; }
-        public string AvatarUrl { get; set; }
-        public int Points { get; set; }
-        public string Title { get; set; }
-        public List<object> Effects { get; set; }
-        public List<Badge> Badges { get; set; }
-    }
-
-
-    public class UseItemResult
-    {
-        public List<string> Messages { get; set; }
-        public string TargetName { get; set; }
-        public int Points { get; set; }
-
-        private static readonly Regex BonusItemRegex = new Regex(@"You found a bonus item! <([a-f0-9\-]+)> \| <(.+)>");
-
-        public GameItem BonusItem
-        {
-            get
-            {
-                var bonusMessage = Messages.FirstOrDefault(m => BonusItemRegex.IsMatch(m));
-                if (bonusMessage != null)
-                {
-                    var match = BonusItemRegex.Match(bonusMessage);
-                    return new GameItem()
-                    {
-                        Name = match.Groups[2].Value,
-                        Id = match.Groups[1].Value,
-                        Description = "Bonus Item",
-                    };
-                }
-
-                return null;
-            }
-        }
-
-        public void LogMessages()
-        {
-            Log.Write("\r\n > " + string.Join("\r\n > ", Messages));
-
-        }
-
-
     }
 }
