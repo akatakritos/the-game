@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace TheGame
 {
@@ -21,17 +19,31 @@ namespace TheGame
         public List<Field> Fields { get; set; }
     }
 
-    public class RootObject
+    public class PollResponse
     {
         public List<string> Messages { get; set; }
         public Item Item { get; set; }
-        public int Points { get; set; }
+        public decimal Points { get; set; }
         public List<object> Effects { get; set; }
         public List<object> Badges { get; set; }
 
         public void LogMessages()
         {
             Log.Write("\r\n > " + string.Join("\r\n > ", Messages));
+        }
+
+        public IEnumerable<GameItem> ExtractItems()
+        {
+            if (Item == null)
+                return Enumerable.Empty<GameItem>();
+
+            return Item.Fields.Select(fields => new GameItem()
+            {
+                Name = fields.Name,
+                Description = fields.Description,
+                Id = fields.Id,
+                Rarity = fields.Rarity
+            });
         }
     }
 
@@ -44,9 +56,9 @@ namespace TheGame
     {
         public string PlayerName { get; set; }
         public string AvatarUrl { get; set; }
-        public long Points { get; set; }
+        public decimal Points { get; set; }
         public string Title { get; set; }
-        public List<object> Effects { get; set; }
+        public List<string> Effects { get; set; }
         public List<Badge> Badges { get; set; }
     }
 
@@ -62,7 +74,7 @@ namespace TheGame
 
         public List<string> Messages { get; set; }
         public string TargetName { get; set; }
-        public int Points { get; set; }
+        public decimal Points { get; set; }
 
         private static readonly Regex BonusItemRegex = new Regex(@"You found a bonus item! <([a-f0-9\-]+)> \| <(.+)>");
 
@@ -105,7 +117,7 @@ namespace TheGame
         public List<Badge> Badges { get; set; }
         public List<string> Effects { get; set; }
         public string Title { get; set; }
-        public int Points { get; set; }
+        public decimal Points { get; set; }
         public int ItemsGained { get; set; }
         public int ItemsUsed { get; set; }
     }

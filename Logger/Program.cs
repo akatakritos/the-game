@@ -63,6 +63,11 @@ namespace Logger
                     Console.WriteLine(ex);
                     Thread.Sleep(TimeSpan.FromSeconds(10));
                 }
+                catch (SqlException sex)
+                {
+                    Console.WriteLine(sex);
+                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                }
 
                 Sleep();
             }
@@ -80,7 +85,7 @@ namespace Logger
 
         private static void LogCurrentEffects()
         {
-            var result = _client.GetAsync("/effects/mburke").Result;
+            var result = _client.GetAsync("/effects").Result;
             if (!result.IsSuccessStatusCode)
             {
                 var body = result.Content.ReadAsStringAsync().Result;
@@ -92,10 +97,10 @@ namespace Logger
             const string insert = "INSERT INTO EffectLog (Timestamp, Creator, Targets, EffectName, EffectType, Duration, VoteGain, Description, StatusEffect, StatusEffectDuration) VALUES (@Timestamp, @Creator, @Targets, @EffectName, @EffectType, @Duration, @VoteGain, @Description, @StatusEffect, @StatusEffectDuration)";
             using (var connection = OpenConnection())
             {
-                foreach (var effect in effects.Where(e => e.Timestamp > LastEffect))
+                foreach (var effect in effects.OrderBy(e => e.Timestamp).Where(e => e.Timestamp > LastEffect))
                 {
                     var log = EffectLog.FromJson(effect);
-                    Console.WriteLine($"Saving {log.Timestamp} - {log.EffectName}");
+                    Console.WriteLine($"Saving {log.Timestamp} : {log.Creator} used {log.EffectName} on {log.Targets}");
                     connection.Execute(insert, log);
                     LastEffect = log.Timestamp;
                 }
@@ -162,7 +167,7 @@ namespace Logger
         public string Badges { get; set; }
         public string Effects { get; set; }
         public string Title { get; set; }
-        public int Points { get; set; }
+        public decimal Points { get; set; }
         public int ItemsGained { get; set; }
         public int ItemsUsed { get; set; }
 
@@ -207,7 +212,7 @@ namespace Logger
         public List<Badge> Badges { get; set; }
         public List<string> Effects { get; set; }
         public string Title { get; set; }
-        public int Points { get; set; }
+        public decimal Points { get; set; }
         public int ItemsGained { get; set; }
         public int ItemsUsed { get; set; }
     }

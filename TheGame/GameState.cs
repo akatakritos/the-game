@@ -10,7 +10,7 @@ namespace TheGame
     {
         public static readonly string[] UserWhitelist = { "mburke" };
 
-        public int Points { get; set; }
+        public decimal Points { get; set; }
         public DateTime LastItemUse = DateTime.MinValue;
         public DateTime LastPoints = DateTime.MinValue;
 
@@ -35,7 +35,7 @@ namespace TheGame
         public string[] Effects { get; set; } = new string[0];
 
         [JsonIgnore]
-        public IEnumerable<LeaderboardResult> Leaderboard { get; set; }
+        public IEnumerable<LeaderboardResult> Leaderboard { get; set; } = new LeaderboardResult[0];
 
         [JsonIgnore]
         public int Position => Leaderboard.IndexOf(l => l.PlayerName == Constants.Me);

@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Entities.cs" />
     <Compile Include="EnumerableExtensions.cs" />
+    <Compile Include="ExceptionExtensions.cs" />
     <Compile Include="GameState.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="ItemSelectors.cs" />

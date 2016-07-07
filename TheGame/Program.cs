@@ -53,79 +53,81 @@ namespace TheGame
             while (true)
             {
                 SaveState(_state);
-                //LogScore();
 
                 if (Console.KeyAvailable)
                     return Console.ReadKey(true);
 
-                try
-                {
-                    if (!_rules.HasNegativeEffect)
-                    {
-                        var result = Post("/points");
-                        var response = JsonConvert.DeserializeObject<RootObject>(result);
-                        _state.Points = response.Points;
-                        _state.LastMessages = response.Messages;
-                        response.LogMessages();
-
-                        _state.Effects = GetEffects();
-                        _state.Leaderboard = GetLeaderboard();
-
-                        if (response.Item != null)
-                        {
-                            foreach (var fields in response.Item.Fields)
-                            {
-                                _state.Items.Add(new GameItem()
-                                {
-                                    Name = fields.Name,
-                                    Description = fields.Description,
-                                    Id = fields.Id,
-                                    Rarity = fields.Rarity
-                                });
-                            }
-                        }
-                    }
-                    else
-                    {
-                        _state.LastMessages = new List<string>()
-                        {
-                            "Has a negative state, waiting"
-                        };
-                    }
-
-                    // last loop
-                    _state.LastPoints = DateTime.UtcNow;
-                }
-                catch (Exception e)
-                {
-                    Log.Write(e.ToString());
-                }
-
-                if (_state.NextMove == null || _state.NextMove.Mode == ItemMode.Automatic)
-                {
-                    _state.NextMove = _strategy.GetMove(_state, _rules);
-                }
-
-
-                if (_rules.CanUseItem() && _state.NextMove != null)
-                {
-                    try
-                    {
-                        var useResult = UseItem(_state.NextMove.Item, _state.NextMove.Target);
-                        _state.LastMessages.Insert(0, $"{_state.NextMove.Mode}ly used {_state.NextMove.Item.Name} on '{_state.NextMove.Target}'");
-                        _state.LastMessages.InsertRange(0, useResult.Messages);
-                        _state.NextMove = null;
-                    }
-                    catch (AggregateException e)
-                    {
-                        Log.Write(e.Message);
-                        _state.NextMove = null;
-                    }
-                }
-
+                Tick();
                 ShowMenu();
                 Sleep();
             }
+        }
+
+        private static void Tick()
+        {
+            try
+            {
+                if (_strategy.CanPollPoints(_state, _rules))
+                {
+                    var response = PostForPoints();
+
+                    _state.Points = response.Points;
+                    _state.LastMessages = response.Messages;
+                    _state.Effects = GetEffects();
+                    _state.Leaderboard = GetLeaderboard();
+
+
+                }
+                else
+                {
+                    _state.LastMessages = new List<string>()
+                    {
+                        "Don't want to poll right now."
+                    };
+                }
+
+                // last loop
+                _state.LastPoints = DateTime.UtcNow;
+            }
+            catch (Exception e)
+            {
+                e.Log("Global Catch");
+            }
+
+            if (_state.NextMove == null || _state.NextMove.Mode == ItemMode.Automatic)
+            {
+                _state.NextMove = _strategy.GetMove(_state, _rules);
+            }
+
+            if (_rules.CanUseItem() && _state.NextMove != null)
+            {
+                try
+                {
+                    var useResult = UseItem(_state.NextMove.Item, _state.NextMove.Target);
+                    _state.LastMessages.Insert(0, $"{_state.NextMove.Mode}ly used {_state.NextMove.Item.Name} on '{_state.NextMove.Target}'");
+                    _state.LastMessages.InsertRange(0, useResult.Messages);
+                    _state.NextMove = null;
+                }
+                catch (AggregateException e)
+                {
+                    e.Log("Using Item");
+                    _state.NextMove = null;
+                }
+            }
+        }
+
+        private static PollResponse PostForPoints()
+        {
+            var result = Post("/points");
+            var response = JsonConvert.DeserializeObject<PollResponse>(result);
+            response.LogMessages();
+
+            if (response.Item != null)
+            {
+                _state.Items.AddRange(response.ExtractItems());
+            }
+
+            return response;
         }
 
         private static string[] GetEffects()
@@ -137,8 +139,7 @@ namespace TheGame
             }
             catch (AggregateException ex)
             {
-                Log.Write("Error getting effects");
-                Log.Write(ex.Message);
+                ex.Log("Getting Effects");
                 return _state.Effects;
             }
         }
@@ -202,7 +203,8 @@ namespace TheGame
             var leaders = GetLeaderboard();
             foreach (var leader in leaders)
             {
-                Console.WriteLine($"{leader.Points} - {leader.PlayerName}");
+                var effects = leader.Effects?.StringJoin();
+                Console.WriteLine($"{leader.Points} - {leader.PlayerName} : {effects}");
             }
         }
 
@@ -230,6 +232,7 @@ namespace TheGame
             catch (AggregateException e)
             {
                 // oh well
+                e.Log("Getting leaderboard");
                 return LeadersCache ?? new LeaderboardResult[0];
             }
         }
@@ -285,7 +288,7 @@ namespace TheGame
 
             var response = Post(url);
 
-            var result = JsonConvert.DeserializeObject<UseItemResult>(response);
+            var result = response.StartsWith("No", StringComparison.Ordinal) ? null : JsonConvert.DeserializeObject<UseItemResult>(response);
             if (result == null)
             {
                 result = UseItemResult.NullObject;

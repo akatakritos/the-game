@@ -12,6 +12,7 @@ namespace TheGame
     public interface IStrategy
     {
         Move GetMove(GameState state, RulesEngine rules);
+        bool CanPollPoints(GameState state, RulesEngine rules);
     }
 
     public abstract class BaseStrategy : IStrategy
@@ -29,6 +30,19 @@ namespace TheGame
             }
 
             return null;
+        }
+
+        public virtual bool CanPollPoints(GameState state, RulesEngine rules)
+        {
+            return true;
+        }
+    }
+
+    public class PowerupOnlyStrategy : BaseStrategy
+    {
+        public PowerupOnlyStrategy()
+        {
+            MoveSelectors.Add(new PowerupSelector());
         }
     }
 
@@ -55,6 +69,7 @@ namespace TheGame
     {
         private readonly IStrategy _leaderboardStrategy;
         private readonly IStrategy _losingStrategy;
+        private readonly IStrategy _singleStrategy;// = new PowerupOnlyStrategy();
 
         public RootStrategy()
         {
@@ -62,12 +77,27 @@ namespace TheGame
             _losingStrategy = new GrowthStrategy();
         }
 
+        private IStrategy InternalStrategy(GameState state)
+        {
+                if (_singleStrategy != null)
+                {
+                    return _singleStrategy;
+                }
+
+                if (state.OnLeaderboard)
+                    return _leaderboardStrategy;
+                else
+                    return _losingStrategy;
+        }
+
         public Move GetMove(GameState state, RulesEngine rules)
         {
-            if (state.OnLeaderboard)
-                return _leaderboardStrategy.GetMove(state, rules);
-            else
-                return _losingStrategy.GetMove(state, rules);
+            return InternalStrategy(state).GetMove(state, rules);
+        }
+
+        public bool CanPollPoints(GameState state, RulesEngine rules)
+        {
+            return InternalStrategy(state).CanPollPoints(state, rules);
         }
     }
 

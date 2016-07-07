@@ -8,21 +8,21 @@ namespace TheGame
     {
         public static readonly string[] DefenseiveItems =
         {
-            "Star", "Gold Ring", "Varia Suit", "Fat Guys", "Skinny Guys", "Tanooki Suit",
+            "Star", "Gold Ring", "Varia Suit", "Fat Guys", "Skinny Guys", "Tanooki Suit", "Carbuncle"
         };
 
         public static readonly string[] SafeItemNames =
         {
-            "Biggs", "Wedge", "Bo Jackson", "UUDDLRLRBA", "Treasure Chest", "Carbuncle", "Roger Wilco",
+            "Biggs", "Wedge", "Bo Jackson", "UUDDLRLRBA", "Treasure Chest", "Roger Wilco",
             "Da Da Da Da Daaa Da DAA da da", "Banana Peel", "Warthog", "Buffalo", "Red Crystal", "Moogle", "Pokeball", "Moogle", "Pony", "Rush the Dog",
-            "Chocobo", "Leeroy Jenkins","Pizza","Mushroom"
+            "Chocobo", "Leeroy Jenkins","Pizza","Mushroom","Miniature Giant Space Hamster"
         };
 
         public static readonly string[] AttackItemNames =
         {
             "Fire Flower", "Red Shell", "Cardboard Box", "Charizard", "Hard Knuckle", "Crowbar",
             "Green Shell", "Hadouken", "Holy Water", "Fus Ro Dah", "Buster Sword", "Box of Bees",
-            "Rail Gun", "Leisure Suit", ""
+            "Rail Gun", "Leisure Suit"
         };
 
         public static readonly string[] ManualItems =
