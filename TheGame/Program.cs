@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text.RegularExpressions;
 using System.Threading;
 
 using Newtonsoft.Json;
@@ -17,6 +15,7 @@ namespace TheGame
         private static HttpClient client;
         private static GameState _state;
         private static RulesEngine _rules;
+        private static IStrategy _strategy = new RootStrategy();
         const string Me = "mburke";
 
         static void Main(string[] args)
@@ -70,6 +69,7 @@ namespace TheGame
                         response.LogMessages();
 
                         _state.Effects = GetEffects();
+                        _state.Leaderboard = GetLeaderboard();
 
                         if (response.Item != null)
                         {
@@ -101,26 +101,25 @@ namespace TheGame
                     Log.Write(e.ToString());
                 }
 
-                if (_state.NextItem == null || _state.NextItem.Mode == ItemMode.Automatic)
+                if (_state.NextMove == null || _state.NextMove.Mode == ItemMode.Automatic)
                 {
-                    var optimalNextMove = GetOptimalNextItem();
-                    _state.NextItem = optimalNextMove;
+                    _state.NextMove = _strategy.GetMove(_state, _rules);
                 }
 
 
-                if (_rules.CanUseItem() && _state.NextItem != null)
+                if (_rules.CanUseItem() && _state.NextMove != null)
                 {
                     try
                     {
-                        var useResult = UseItem(_state.NextItem.Item, _state.NextItem.Target);
-                        _state.LastMessages.Insert(0, $"{_state.NextItem.Mode}ly used {_state.NextItem.Item.Name} on '{_state.NextItem.Target}'");
+                        var useResult = UseItem(_state.NextMove.Item, _state.NextMove.Target);
+                        _state.LastMessages.Insert(0, $"{_state.NextMove.Mode}ly used {_state.NextMove.Item.Name} on '{_state.NextMove.Target}'");
                         _state.LastMessages.InsertRange(0, useResult.Messages);
-                        _state.NextItem = null;
+                        _state.NextMove = null;
                     }
                     catch (AggregateException e)
                     {
                         Log.Write(e.Message);
-                        _state.NextItem = null;
+                        _state.NextMove = null;
                     }
                 }
 
@@ -144,87 +143,6 @@ namespace TheGame
             }
         }
 
-        public static NextItem GetOptimalNextItem()
-        {
-            if (GetLeaders().Select(l => l.PlayerName).Contains(Constants.Me))
-            {
-                //Favor defense first since im on leaderboard
-                var defensive = TryDefensive();
-                if (defensive != null)
-                    return defensive;
-
-                var powerup = TryPowerups();
-                if (powerup != null)
-                    return powerup;
-
-                var attack = TryAttack();
-                if (attack != null)
-                    return attack;
-            }
-            else
-            {
-                //hoard defensive items
-
-                var powerup = TryPowerups();
-                if (powerup != null)
-                    return powerup;
-
-                var attack = TryAttack();
-                if (attack != null)
-                    return attack;
-            }
-
-            return null;
-        }
-
-        public static NextItem TryDefensive()
-        {
-            if (_state.DefensiveItems.Any())
-            {
-                var item = _state.DefensiveItems.First();
-                return new NextItem()
-                {
-                    Item = item,
-                    Target = null,
-                    Mode = ItemMode.Automatic
-                };
-            }
-
-            return null;
-        }
-
-        private static NextItem TryPowerups()
-        {
-            if (_state.PowerUpItems.Any())
-            {
-                var item = _state.PowerUpItems.First();
-                return new NextItem()
-                {
-                    Item = item,
-                    Target = null,
-                    Mode = ItemMode.Automatic
-                };
-            }
-
-            return null;
-        }
-
-        private static NextItem TryAttack()
-        {
-            if (_state.AttackItems.Any())
-            {
-                var item = _state.AttackItems.First();
-                return new NextItem()
-                {
-                    Item = item,
-                    Target = FindOptimumOpponent(item),
-                    Mode = ItemMode.Automatic
-                };
-            }
-
-            return null;
-        }
-
         public static void PickItem()
         {
             Console.Clear();
@@ -245,7 +163,7 @@ namespace TheGame
             int choice = int.Parse(pieces[0]);
             string target = pieces.Length > 1 ? pieces[1] : null;
 
-            _state.NextItem = new NextItem()
+            _state.NextMove = new Move()
             {
                 Item = _state.Items[choice],
                 Target = target,
@@ -263,9 +181,9 @@ namespace TheGame
                 Console.WriteLine("> " + msg);
             }
 
-            if (_state.NextItem != null)
+            if (_state.NextMove != null)
             {
-                Console.WriteLine($"{_state.NextItem.Mode} Item Scheduled: {_state.NextItem.Item.Name} on '{_state.NextItem.Target}'");
+                Console.WriteLine($"{_state.NextMove.Mode} Item Scheduled: {_state.NextMove.Item.Name} on '{_state.NextMove.Target}'");
             }
 
             var remaining = _rules.NextItemTime - DateTime.UtcNow;
@@ -281,7 +199,7 @@ namespace TheGame
 
         private static void ShowLeaders()
         {
-            var leaders = GetLeaders();
+            var leaders = GetLeaderboard();
             foreach (var leader in leaders)
             {
                 Console.WriteLine($"{leader.Points} - {leader.PlayerName}");
@@ -291,7 +209,7 @@ namespace TheGame
         private static LeaderboardResult[] LeadersCache = null;
         private static DateTime LeaderCacheExpires = DateTime.MinValue;
 
-        private static IEnumerable<LeaderboardResult> GetLeaders()
+        private static IEnumerable<LeaderboardResult> GetLeaderboard()
         {
             if (LeadersCache == null || LeaderCacheExpires < DateTime.UtcNow)
             {
@@ -330,32 +248,6 @@ namespace TheGame
         {
             File.WriteAllText("state.json", JsonConvert.SerializeObject(state));
         }
-
-        private static string FindOptimumOpponent(GameItem item)
-        {
-            var leaderboard = GetLeaders().ToArray();
-
-            var nextUp = GetNextUp(leaderboard);
-            if (nextUp != null)
-            {
-                return nextUp;
-            }
-
-            return leaderboard.FirstOrDefault(l => l.PlayerName != Me)?.PlayerName ?? "eweiss";
-        }
-
-        private static string GetNextUp(LeaderboardResult[] leaderboard)
-        {
-            var i = Array.IndexOf(leaderboard.Select(l => l.PlayerName).ToArray(), Me);
-            if (i > 0)
-            {
-                return leaderboard[i - 1].PlayerName;
-            }
-
-            return null;
-        }
-
-
 
         private static UseItemResult UseItem(GameItem item, string target = null)
         {

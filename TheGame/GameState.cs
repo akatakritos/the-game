@@ -29,10 +29,19 @@ namespace TheGame
         public IEnumerable<GameItem> DefensiveItems => Items.Where(i => Constants.DefenseiveItems.Contains(i.Name) && !Effects.Contains(i.Name));
 
         [JsonIgnore]
-        public NextItem NextItem { get; set; }
+        public Move NextMove { get; set; }
 
         [JsonIgnore]
         public string[] Effects { get; set; } = new string[0];
+
+        [JsonIgnore]
+        public IEnumerable<LeaderboardResult> Leaderboard { get; set; }
+
+        [JsonIgnore]
+        public int Position => Leaderboard.IndexOf(l => l.PlayerName == Constants.Me);
+
+        [JsonIgnore]
+        public bool OnLeaderboard => Leaderboard.Any(l => l.PlayerName == Constants.Me);
     }
 
     public class GameItem
@@ -49,7 +58,7 @@ namespace TheGame
 
     }
 
-    public class NextItem
+    public class Move
     {
         public GameItem Item { get; set; }
         public string Target { get; set; }
