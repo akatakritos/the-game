@@ -55,6 +55,7 @@ namespace Logger
                 try
                 {
                     LogCurrentEffects();
+                    Thread.Sleep(300);
                     LogPoints();
                 }
                 catch (AggregateException ex)

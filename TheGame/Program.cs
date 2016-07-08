@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -149,9 +150,15 @@ namespace TheGame
             Console.Clear();
             ShowLeaders();
 
-            for (int i = 0; i < _state.Items.Count; i++)
+            var groups = _state.Items.GroupBy(i => i.Name)
+                .Select(g => new { Item = g.First(), Count = g.Count() })
+                .OrderByDescending(g => g.Count)
+                .ToArray();
+
+            for (int i = 0; i < groups.Length; i++)
             {
-                Console.WriteLine($"{i}: {_state.Items[i]} ({_state.Items[i].Rarity})");
+                var group = groups[i];
+                Console.WriteLine($"{i}: {group.Count}x {group.Item} ({group.Item.Rarity})");
             }
 
             var s = Console.ReadLine();
@@ -166,7 +173,7 @@ namespace TheGame
 
             _state.NextMove = new Move()
             {
-                Item = _state.Items[choice],
+                Item = groups[choice].Item,
                 Target = target,
                 Mode = ItemMode.Manual
             };
@@ -176,11 +183,19 @@ namespace TheGame
         {
             Console.Clear();
             ShowLeaders();
+            if (!_state.OnLeaderboard)
+            {
+                Console.WriteLine("           ...");
+                Console.WriteLine($"{_state.Points:0000000000} {Constants.Me.PadRight(8)} : {_state.Effects.StringJoin()}");
+            }
 
+            Console.WriteLine();
             foreach (var msg  in _state.LastMessages)
             {
                 Console.WriteLine("> " + msg);
             }
+
+            Console.WriteLine();
 
             if (_state.NextMove != null)
             {
@@ -190,11 +205,7 @@ namespace TheGame
             var remaining = _rules.NextItemTime - DateTime.UtcNow;
             Console.WriteLine($"{remaining.TotalSeconds} seconds until Item is ready");
 
-            if (_rules.CanUseItem())
-            {
-                Console.WriteLine($"U: {_state.Items.Count} Items Available");
-            }
-
+            Console.WriteLine($"U: {_state.Items.Count} Items Available");
             Console.WriteLine("Q: Quit");
         }
 
@@ -204,7 +215,7 @@ namespace TheGame
             foreach (var leader in leaders)
             {
                 var effects = leader.Effects?.StringJoin();
-                Console.WriteLine($"{leader.Points} - {leader.PlayerName} : {effects}");
+                Console.WriteLine($"{leader.Points:0000000000} {leader.PlayerName.PadRight(8)} : {effects}");
             }
         }
 
@@ -313,6 +324,7 @@ namespace TheGame
 
         private static string Get(string url)
         {
+            Thread.Sleep(300);
             var response = client.GetStringAsync(url).Result;
             //Log.Write($"GET {url} : {response}");
 

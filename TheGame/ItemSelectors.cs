@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 
 namespace TheGame
 {
@@ -127,13 +128,20 @@ namespace TheGame
         {
             if (state.DefensiveItems.Any())
             {
-                var item = state.DefensiveItems.First();
-                return new Move()
+                foreach (var item in state.DefensiveItems)
                 {
-                    Item = item,
-                    Target = null,
-                    Mode = ItemMode.Automatic
-                };
+                    // if we already have a defensive item, lets wait
+                    if (state.Effects.Any(e => Constants.DefenseiveItems.Contains(e)))
+                        continue;
+
+                    return new Move()
+                    {
+                        Item = item,
+                        Target = null,
+                        Mode = ItemMode.Automatic
+                    };
+
+                }
             }
 
             return null;

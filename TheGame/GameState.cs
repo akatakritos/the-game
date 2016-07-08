@@ -20,7 +20,7 @@ namespace TheGame
         public List<string> LastMessages { get; set; } = new List<string>();
 
         [JsonIgnore]
-        public IEnumerable<GameItem> PowerUpItems => Items.Where(i => Constants.SafeItemNames.Contains(i.Name) && !Effects.Contains(i.Name));
+        public IEnumerable<GameItem> PowerUpItems => Items.Where(i => Constants.PowerupItemNames.Contains(i.Name) && !Effects.Contains(i.Name));
 
         [JsonIgnore]
         public IEnumerable<GameItem> AttackItems => Items.Where(i => Constants.AttackItemNames.Contains(i.Name) && !Effects.Contains(i.Name));
@@ -56,6 +56,9 @@ namespace TheGame
             return $"{Name} - {Description}";
         }
 
+        public bool IsOffensive => Constants.AttackItemNames.Contains(Name);
+        public bool IsDefensive => Constants.DefenseiveItems.Contains(Name);
+        public bool IsPowerup => Constants.PowerupItemNames.Contains(Name);
     }
 
     public class Move
