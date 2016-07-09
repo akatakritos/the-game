@@ -77,13 +77,17 @@ namespace TheGame
             {
                 var group = groups[i];
                 if (inventory.Items.Count <= i)
-                    inventory.Items.Add(new ListViewItem(new[] { group.Count.ToString(), group.Item.ToString(), group.Item.Rarity.ToString() }));
+                    inventory.Items.Add(new ListViewItem(new[]
+                    {
+                        group.Count.ToString(), group.Item.Name, group.Item.Description, group.Item.Rarity.ToString()
+                    }));
                 else
                 {
                     var lvi = inventory.Items[i];
                     lvi.SubItems[0].Text = group.Count.ToString(CultureInfo.InvariantCulture);
-                    lvi.SubItems[1].Text = group.Item.ToString();
-                    lvi.SubItems[2].Text = group.Item.Rarity.ToString();
+                    lvi.SubItems[1].Text = group.Item.Name;
+                    lvi.SubItems[2].Text = group.Item.Description;
+                    lvi.SubItems[3].Text = group.Item.Rarity.ToString();
                 }
             }
 
@@ -98,7 +102,6 @@ namespace TheGame
             if (sleepTime.TotalMilliseconds < 0)
                 sleepTime = TimeSpan.FromMilliseconds(10);
 
-            AddMessage($"Sleeping for {sleepTime.TotalMilliseconds}ms");
             _timer.Interval = sleepTime.TotalMilliseconds;
             _timer.Start();
         }
@@ -121,7 +124,11 @@ namespace TheGame
                 var leader = leaders[i];
 
                 if (leaderboard.Items.Count <= i)
-                    leaderboard.Items.Add(new ListViewItem(new string[] { leader.Points.ToString(CultureInfo.InvariantCulture), leader.PlayerName, leader.Effects.StringJoin() }));
+                    leaderboard.Items.Add(new ListViewItem(new string[]
+                    {
+                        leader.Points.ToString(CultureInfo.InvariantCulture),
+                        leader.PlayerName, leader.Effects.StringJoin()
+                    }));
                 else
                 {
                     var lvi = leaderboard.Items[i];
@@ -192,7 +199,7 @@ namespace TheGame
 
                 var move = new Move()
                 {
-                    Item = _state.Items.First(i => i.ToString() == item.SubItemText(1)),
+                    Item = _state.Items.First(i => i.Name == item.SubItemText(1)),
                     Mode = ItemMode.Manual,
                     Target = target,
                 };

@@ -34,14 +34,12 @@ namespace TheGame
             {
                 if (_strategy.CanPollPoints(_state, _rules))
                 {
-                    //var response = await PostForPoints();
+                    var response = await PostForPoints();
 
-                    //_state.Points = response.Points;
-                    //_state.LastMessages = response.Messages;
+                    _state.Points = response.Points;
+                    _state.LastMessages = response.Messages;
                     _state.Effects = await GetEffects();
                     _state.Leaderboard = await GetLeaderboard();
-
-
                 }
                 else
                 {
@@ -66,18 +64,18 @@ namespace TheGame
 
             if (_rules.CanUseItem() && _state.NextMove != null)
             {
-                //try
-                //{
-                //    var useResult = await UseItem(_state.NextMove.Item, _state.NextMove.Target);
-                //    _state.LastMessages.Insert(0, $"{_state.NextMove.Mode}ly used {_state.NextMove.Item.Name} on '{_state.NextMove.Target}'");
-                //    _state.LastMessages.InsertRange(0, useResult.Messages);
-                //    _state.NextMove = null;
-                //}
-                //catch (AggregateException e)
-                //{
-                //    e.Log("Using Item");
-                //    _state.NextMove = null;
-                //}
+                try
+                {
+                    var useResult = await UseItem(_state.NextMove.Item, _state.NextMove.Target);
+                    _state.LastMessages.Insert(0, $"{_state.NextMove.Mode}ly used {_state.NextMove.Item.Name} on '{_state.NextMove.Target}'");
+                    _state.LastMessages.InsertRange(0, useResult.Messages);
+                    _state.NextMove = null;
+                }
+                catch (AggregateException e)
+                {
+                    e.Log("Using Item");
+                    _state.NextMove = null;
+                }
             }
         }
 

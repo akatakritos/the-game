@@ -32,6 +32,11 @@ namespace TheGame
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
+            "5",
+            "Foobar",
+            "The foobar item does stuff",
+            "4"}, -1);
             this.leaderboard = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -39,6 +44,7 @@ namespace TheGame
             this.inventory = new System.Windows.Forms.ListView();
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.lblNextMove = new System.Windows.Forms.Label();
             this.btnSchedule = new System.Windows.Forms.Button();
@@ -56,9 +62,10 @@ namespace TheGame
             this.columnHeader3});
             this.leaderboard.FullRowSelect = true;
             this.leaderboard.HideSelection = false;
-            this.leaderboard.Location = new System.Drawing.Point(12, 12);
+            this.leaderboard.Location = new System.Drawing.Point(6, 6);
+            this.leaderboard.Margin = new System.Windows.Forms.Padding(2);
             this.leaderboard.Name = "leaderboard";
-            this.leaderboard.Size = new System.Drawing.Size(847, 307);
+            this.leaderboard.Size = new System.Drawing.Size(739, 241);
             this.leaderboard.TabIndex = 0;
             this.leaderboard.UseCompatibleStateImageBehavior = false;
             this.leaderboard.View = System.Windows.Forms.View.Details;
@@ -80,15 +87,22 @@ namespace TheGame
             // 
             // inventory
             // 
+            this.inventory.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.inventory.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader4,
             this.columnHeader5,
-            this.columnHeader6});
+            this.columnHeader6,
+            this.columnHeader7});
             this.inventory.FullRowSelect = true;
             this.inventory.HideSelection = false;
-            this.inventory.Location = new System.Drawing.Point(12, 367);
+            this.inventory.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
+            listViewItem1});
+            this.inventory.Location = new System.Drawing.Point(11, 271);
+            this.inventory.Margin = new System.Windows.Forms.Padding(2);
             this.inventory.Name = "inventory";
-            this.inventory.Size = new System.Drawing.Size(685, 175);
+            this.inventory.Size = new System.Drawing.Size(407, 165);
             this.inventory.TabIndex = 1;
             this.inventory.UseCompatibleStateImageBehavior = false;
             this.inventory.View = System.Windows.Forms.View.Details;
@@ -96,63 +110,74 @@ namespace TheGame
             // columnHeader4
             // 
             this.columnHeader4.Text = "Count";
-            this.columnHeader4.Width = 99;
+            this.columnHeader4.Width = 55;
             // 
             // columnHeader5
             // 
             this.columnHeader5.Text = "Name";
-            this.columnHeader5.Width = 257;
+            this.columnHeader5.Width = 117;
+            // 
+            // columnHeader7
+            // 
+            this.columnHeader7.Text = "Rarity";
             // 
             // columnHeader6
             // 
-            this.columnHeader6.Text = "Rarity";
+            this.columnHeader6.Text = "Description";
+            this.columnHeader6.Width = 136;
             // 
             // lblNextMove
             // 
             this.lblNextMove.AutoSize = true;
-            this.lblNextMove.Location = new System.Drawing.Point(12, 322);
+            this.lblNextMove.Location = new System.Drawing.Point(8, 249);
+            this.lblNextMove.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblNextMove.Name = "lblNextMove";
-            this.lblNextMove.Size = new System.Drawing.Size(70, 25);
+            this.lblNextMove.Size = new System.Drawing.Size(35, 13);
             this.lblNextMove.TabIndex = 8;
             this.lblNextMove.Text = "label1";
             // 
             // btnSchedule
             // 
-            this.btnSchedule.Location = new System.Drawing.Point(746, 432);
+            this.btnSchedule.Location = new System.Drawing.Point(429, 339);
+            this.btnSchedule.Margin = new System.Windows.Forms.Padding(2);
             this.btnSchedule.Name = "btnSchedule";
-            this.btnSchedule.Size = new System.Drawing.Size(75, 33);
+            this.btnSchedule.Size = new System.Drawing.Size(45, 23);
             this.btnSchedule.TabIndex = 9;
-            this.btnSchedule.Text = "button1";
+            this.btnSchedule.Text = "Add";
             this.btnSchedule.UseVisualStyleBackColor = true;
             this.btnSchedule.Click += new System.EventHandler(this.btnSchedule_Click);
             // 
             // txtTarget
             // 
-            this.txtTarget.Location = new System.Drawing.Point(731, 367);
+            this.txtTarget.Location = new System.Drawing.Point(429, 291);
+            this.txtTarget.Margin = new System.Windows.Forms.Padding(2);
             this.txtTarget.Name = "txtTarget";
-            this.txtTarget.Size = new System.Drawing.Size(100, 31);
+            this.txtTarget.Size = new System.Drawing.Size(52, 20);
             this.txtTarget.TabIndex = 10;
             // 
             // log
             // 
+            this.log.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.log.FormattingEnabled = true;
-            this.log.ItemHeight = 25;
-            this.log.Location = new System.Drawing.Point(12, 548);
+            this.log.Location = new System.Drawing.Point(11, 440);
+            this.log.Margin = new System.Windows.Forms.Padding(2);
             this.log.Name = "log";
-            this.log.Size = new System.Drawing.Size(847, 129);
+            this.log.Size = new System.Drawing.Size(727, 69);
             this.log.TabIndex = 11;
             // 
             // TheGameForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(871, 700);
+            this.ClientSize = new System.Drawing.Size(749, 520);
             this.Controls.Add(this.log);
             this.Controls.Add(this.txtTarget);
             this.Controls.Add(this.btnSchedule);
             this.Controls.Add(this.lblNextMove);
             this.Controls.Add(this.inventory);
             this.Controls.Add(this.leaderboard);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "TheGameForm";
             this.Text = "Teh Game";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
@@ -176,6 +201,7 @@ namespace TheGame
         private System.Windows.Forms.TextBox txtTarget;
         private System.Windows.Forms.ColumnHeader columnHeader6;
         private System.Windows.Forms.ListBox log;
+        private System.Windows.Forms.ColumnHeader columnHeader7;
     }
 }
 
