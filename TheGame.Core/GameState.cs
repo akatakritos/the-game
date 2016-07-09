@@ -85,6 +85,11 @@ namespace TheGame
         public GameItem Item { get; set; }
         public string Target { get; set; }
         public ItemMode Mode { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Item.Name} on {Target ?? Constants.Me}";
+        }
     }
 
     public enum ItemMode

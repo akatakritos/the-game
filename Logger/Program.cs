@@ -4,7 +4,6 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
 using Dapper;
@@ -20,6 +19,7 @@ namespace Logger
         private static DateTime LastLoop = DateTime.MinValue;
         private static DateTime LastEffect = DateTime.MinValue;
 
+        // ReSharper disable once UnusedParameter.Local
         static void Main(string[] args)
         {
             _client = new HttpClient();

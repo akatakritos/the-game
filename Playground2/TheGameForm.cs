@@ -34,7 +34,6 @@ namespace TheGame
             _loop = new GameLoop(_state, _rules);
         }
 
-        private DateTime _lastTicked = DateTime.UtcNow;
         private async void TimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
         {
             try
@@ -42,8 +41,6 @@ namespace TheGame
 
                 Log.Write("TICK");
                 SaveState(_state);
-                //AddMessage(DateTime.Now.ToLongTimeString() + "     " + (DateTime.UtcNow - _lastTicked).TotalMilliseconds);
-                _lastTicked = DateTime.UtcNow;
                 await _loop.Tick();
                 CopyState();
             }

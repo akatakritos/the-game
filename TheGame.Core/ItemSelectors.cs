@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 
 namespace TheGame
 {
@@ -158,7 +157,7 @@ namespace TheGame
                 return new Move()
                 {
                     Item = item,
-                    Target = FindOptimumOpponent(state, item),
+                    Target = FindOptimumOpponent(state),
                     Mode = ItemMode.Automatic
                 };
             }
@@ -166,7 +165,7 @@ namespace TheGame
             return null;
         }
 
-        private static string FindOptimumOpponent(GameState state, GameItem item)
+        private static string FindOptimumOpponent(GameState state)
         {
 
             var nextUp = GetNextUp(state);

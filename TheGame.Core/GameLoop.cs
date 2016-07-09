@@ -15,7 +15,7 @@ namespace TheGame
         private readonly GameState _state;
         private readonly RulesEngine _rules;
         private readonly IStrategy _strategy = new RootStrategy();
-        private bool _readonly = true;
+        public bool ReadOnlyMode { get; } = true;
 
         public GameLoop(GameState state, RulesEngine rules)
         {
@@ -36,7 +36,7 @@ namespace TheGame
             {
                 if (_strategy.CanPollPoints(_state))
                 {
-                    if (!_readonly)
+                    if (!ReadOnlyMode)
                     {
                         var response = await PostForPoints();
                         _state.LastPoints = DateTime.UtcNow;
@@ -67,7 +67,7 @@ namespace TheGame
                 _state.NextAutomaticMove = _strategy.GetMove(_state);
             }
 
-            if (_rules.CanUseItem() && _state.NextMove != null && !_readonly)
+            if (_rules.CanUseItem() && _state.NextMove != null && !ReadOnlyMode)
             {
                 try
                 {
@@ -204,7 +204,7 @@ namespace TheGame
             return response;
         }
 
-        private LeaderboardResult[] _leadersCache = null;
+        private LeaderboardResult[] _leadersCache;
         private DateTime _leaderCacheExpires = DateTime.MinValue;
 
         public async Task<IEnumerable<LeaderboardResult>> GetLeaderboard()
