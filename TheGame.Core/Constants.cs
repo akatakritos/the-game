@@ -27,7 +27,12 @@ namespace TheGame
         {
             "Fire Flower", "Red Shell", "Cardboard Box", "Charizard", "Hard Knuckle", "Crowbar",
             "Green Shell", "Hadouken", "Holy Water", "Fus Ro Dah", "Buster Sword", "Box of Bees",
-            "Rail Gun", "Leisure Suit"
+            "Rail Gun",
+        };
+
+        public static string[] BlacklistedItems =
+        {
+            "Leisure Suit`",
         };
 
         public static readonly string[] ManualItems =
