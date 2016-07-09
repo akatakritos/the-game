@@ -25,6 +25,7 @@ namespace Logger
             _client = new HttpClient();
             _client.DefaultRequestHeaders.Add("apiKey", "3f1d83f7-f778-425f-8a02-aa7001713183");
             _client.BaseAddress = new Uri("http://thegame.nerderylabs.com");
+            _client.BaseAddress = new Uri("http://thegame.nerderylabs.com:1337");
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             LastEffect = GetLastLoggedEventTime();

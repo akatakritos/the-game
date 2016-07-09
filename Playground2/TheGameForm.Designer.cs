@@ -32,11 +32,14 @@ namespace TheGame
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem(new string[] {
             "5",
             "Foobar",
             "The foobar item does stuff",
             "4"}, -1);
+            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem(new string[] {
+            "Foo Item",
+            "mburke"}, -1);
             this.leaderboard = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -50,6 +53,12 @@ namespace TheGame
             this.btnSchedule = new System.Windows.Forms.Button();
             this.txtTarget = new System.Windows.Forms.TextBox();
             this.log = new System.Windows.Forms.ListBox();
+            this.moves = new System.Windows.Forms.ListView();
+            this.columnHeader8 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader9 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.btnRemove = new System.Windows.Forms.Button();
+            this.btnUp = new System.Windows.Forms.Button();
+            this.btnDown = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // leaderboard
@@ -98,7 +107,7 @@ namespace TheGame
             this.inventory.FullRowSelect = true;
             this.inventory.HideSelection = false;
             this.inventory.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1});
+            listViewItem7});
             this.inventory.Location = new System.Drawing.Point(11, 271);
             this.inventory.Margin = new System.Windows.Forms.Padding(2);
             this.inventory.Name = "inventory";
@@ -141,7 +150,7 @@ namespace TheGame
             this.btnSchedule.Location = new System.Drawing.Point(429, 339);
             this.btnSchedule.Margin = new System.Windows.Forms.Padding(2);
             this.btnSchedule.Name = "btnSchedule";
-            this.btnSchedule.Size = new System.Drawing.Size(45, 23);
+            this.btnSchedule.Size = new System.Drawing.Size(52, 23);
             this.btnSchedule.TabIndex = 9;
             this.btnSchedule.Text = "Add";
             this.btnSchedule.UseVisualStyleBackColor = true;
@@ -166,11 +175,71 @@ namespace TheGame
             this.log.Size = new System.Drawing.Size(727, 69);
             this.log.TabIndex = 11;
             // 
+            // moves
+            // 
+            this.moves.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader8,
+            this.columnHeader9});
+            this.moves.FullRowSelect = true;
+            this.moves.HideSelection = false;
+            listViewItem8.Tag = "Foo Item";
+            this.moves.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
+            listViewItem8});
+            this.moves.Location = new System.Drawing.Point(496, 271);
+            this.moves.Name = "moves";
+            this.moves.Size = new System.Drawing.Size(164, 164);
+            this.moves.TabIndex = 12;
+            this.moves.UseCompatibleStateImageBehavior = false;
+            this.moves.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader8
+            // 
+            this.columnHeader8.Text = "Item";
+            this.columnHeader8.Width = 93;
+            // 
+            // columnHeader9
+            // 
+            this.columnHeader9.Text = "Target";
+            // 
+            // btnRemove
+            // 
+            this.btnRemove.Location = new System.Drawing.Point(429, 367);
+            this.btnRemove.Name = "btnRemove";
+            this.btnRemove.Size = new System.Drawing.Size(52, 23);
+            this.btnRemove.TabIndex = 13;
+            this.btnRemove.Text = "Remove";
+            this.btnRemove.UseVisualStyleBackColor = true;
+            this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
+            // 
+            // btnUp
+            // 
+            this.btnUp.Location = new System.Drawing.Point(666, 335);
+            this.btnUp.Name = "btnUp";
+            this.btnUp.Size = new System.Drawing.Size(75, 23);
+            this.btnUp.TabIndex = 14;
+            this.btnUp.Text = "Up";
+            this.btnUp.UseVisualStyleBackColor = true;
+            this.btnUp.Click += new System.EventHandler(this.btnUp_Click);
+            // 
+            // btnDown
+            // 
+            this.btnDown.Location = new System.Drawing.Point(666, 364);
+            this.btnDown.Name = "btnDown";
+            this.btnDown.Size = new System.Drawing.Size(75, 23);
+            this.btnDown.TabIndex = 15;
+            this.btnDown.Text = "Down";
+            this.btnDown.UseVisualStyleBackColor = true;
+            this.btnDown.Click += new System.EventHandler(this.btnDown_Click);
+            // 
             // TheGameForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(749, 520);
+            this.Controls.Add(this.btnDown);
+            this.Controls.Add(this.btnUp);
+            this.Controls.Add(this.btnRemove);
+            this.Controls.Add(this.moves);
             this.Controls.Add(this.log);
             this.Controls.Add(this.txtTarget);
             this.Controls.Add(this.btnSchedule);
@@ -202,6 +271,12 @@ namespace TheGame
         private System.Windows.Forms.ColumnHeader columnHeader6;
         private System.Windows.Forms.ListBox log;
         private System.Windows.Forms.ColumnHeader columnHeader7;
+        private System.Windows.Forms.ListView moves;
+        private System.Windows.Forms.ColumnHeader columnHeader8;
+        private System.Windows.Forms.ColumnHeader columnHeader9;
+        private System.Windows.Forms.Button btnRemove;
+        private System.Windows.Forms.Button btnUp;
+        private System.Windows.Forms.Button btnDown;
     }
 }
 

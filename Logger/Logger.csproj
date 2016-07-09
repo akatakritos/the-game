@@ -60,8 +60,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetDir)$(TargetName).exe $(SolutionDir)TheGame\bin\$(ConfigurationName)\
-copy $(TargetDir)$(TargetName).pdb $(SolutionDir)TheGame\bin\$(ConfigurationName)\</PostBuildEvent>
+    <PostBuildEvent>copy $(TargetDir)$(TargetName).exe $(SolutionDir)Playground2\bin\$(ConfigurationName)\
+copy $(TargetDir)$(TargetName).pdb $(SolutionDir)Playground2\bin\$(ConfigurationName)\</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

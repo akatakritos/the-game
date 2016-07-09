@@ -29,7 +29,13 @@ namespace TheGame
         public IEnumerable<GameItem> DefensiveItems => Items.Where(i => Constants.DefenseiveItems.Contains(i.Name) && !Effects.Contains(i.Name));
 
         [JsonIgnore]
-        public Move NextMove { get; set; }
+        public List<Move> MoveQueue { get; } = new List<Move>();
+
+        [JsonIgnore]
+        public Move NextAutomaticMove { get; set; }
+
+        [JsonIgnore]
+        public Move NextMove => MoveQueue.Peek() ?? NextAutomaticMove;
 
         [JsonIgnore]
         public string[] Effects { get; set; } = new string[0];

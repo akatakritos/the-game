@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
 
@@ -33,12 +34,25 @@ namespace TheGame
             _loop = new GameLoop(_state, _rules);
         }
 
+        private DateTime _lastTicked = DateTime.UtcNow;
         private async void TimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
         {
-            Log.Write("TICK");
-            SaveState(_state);
-            await _loop.Tick();
-            CopyState();
+            try
+            {
+
+                Log.Write("TICK");
+                SaveState(_state);
+                //AddMessage(DateTime.Now.ToLongTimeString() + "     " + (DateTime.UtcNow - _lastTicked).TotalMilliseconds);
+                _lastTicked = DateTime.UtcNow;
+                await _loop.Tick();
+                CopyState();
+            }
+            catch (Exception ex)
+            {
+                ex.Log();
+                await Task.Delay(250);
+            }
+
             Sleep();
         }
 
@@ -46,6 +60,7 @@ namespace TheGame
         {
             SetLeaderboard();
             SetInventory();
+            SetQueue();
             CopyMessages();
             SetNextMoveMessage();
         }
@@ -59,8 +74,9 @@ namespace TheGame
         private void SetNextMoveMessage()
         {
             var remaining = (int)(_rules.NextItemTime - DateTime.UtcNow).TotalSeconds;
-            var message = _state.NextMove != null ?
-                $"{_state.NextMove.Mode} Item Scheduled: {_state.NextMove.Item.Name} on '{_state.NextMove.Target}'" :
+            var nextMove = _state.NextMove;
+            var message = nextMove != null ?
+                $"{nextMove.Mode} Item Scheduled: {nextMove.Item.Name} on '{nextMove.Target ?? Constants.Me}'" :
                 "No move scheduled";
             lblNextMove.Text = $"{message} ({remaining}s)";
         }
@@ -71,27 +87,37 @@ namespace TheGame
             var groups = _state.Items.GroupBy(i => i.Name)
                 .Select(g => new { Item = g.First(), Count = g.Count() })
                 .OrderByDescending(g => g.Count)
-                .ToArray();
+                .ToList();
 
-            for (int i = 0; i < groups.Length; i++)
+            for (int i = 0; i < groups.Count; i++)
             {
                 var group = groups[i];
+                var count = group.Count - _state.MoveQueue.AsEnumerable().Count(q => q.Item.Name == group.Item.Name);
+                if (count == 0)
+                {
+                    groups.RemoveAt(i);
+                    i--;
+                    continue;
+                }
+
+
+
                 if (inventory.Items.Count <= i)
                     inventory.Items.Add(new ListViewItem(new[]
                     {
-                        group.Count.ToString(), group.Item.Name, group.Item.Description, group.Item.Rarity.ToString()
+                        count.ToString(), group.Item.Name, group.Item.Description, group.Item.Rarity.ToString()
                     }));
                 else
                 {
                     var lvi = inventory.Items[i];
-                    lvi.SubItems[0].Text = group.Count.ToString(CultureInfo.InvariantCulture);
+                    lvi.SubItems[0].Text = count.ToString();
                     lvi.SubItems[1].Text = group.Item.Name;
                     lvi.SubItems[2].Text = group.Item.Description;
                     lvi.SubItems[3].Text = group.Item.Rarity.ToString();
                 }
             }
 
-            while (inventory.Items.Count > groups.Length)
+            while (inventory.Items.Count > groups.Count)
                 inventory.Items.RemoveAt(inventory.Items.Count - 1);
         }
 
@@ -102,6 +128,7 @@ namespace TheGame
             if (sleepTime.TotalMilliseconds < 0)
                 sleepTime = TimeSpan.FromMilliseconds(10);
 
+            //AddMessage("Sleep for " + sleepTime.TotalMilliseconds);
             _timer.Interval = sleepTime.TotalMilliseconds;
             _timer.Start();
         }
@@ -155,6 +182,26 @@ namespace TheGame
                     lvi.SubItems[2].Text = _state.Effects.StringJoin();
                 }
             }
+
+        }
+
+        public void SetQueue()
+        {
+            for (int i = 0; i < _state.MoveQueue.Count; i++)
+            {
+                var move = _state.MoveQueue[i];
+                if (moves.Items.Count <= i)
+                    moves.Items.Add(new ListViewItem(new string[] { move.Item.Name, move.Target ?? Constants.Me }));
+                else
+                {
+                    var lvi = moves.Items[i];
+                    lvi.SubItems[0].Text = move.Item.Name;
+                    lvi.SubItems[1].Text = move.Target ?? Constants.Me;
+                }
+            }
+
+            while (moves.Items.Count > _state.MoveQueue.Count)
+                moves.Items.RemoveAt(moves.Items.Count - 1);
         }
 
 
@@ -177,6 +224,7 @@ namespace TheGame
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            Log.Write("Booted");
             CopyState();
             _timer.Start();
         }
@@ -184,6 +232,7 @@ namespace TheGame
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             SaveState(_state);
+            Log.Write("Shut down normally");
         }
 
         private void btnSchedule_Click(object sender, EventArgs e)
@@ -204,7 +253,38 @@ namespace TheGame
                     Target = target,
                 };
 
-                _state.NextMove = move;
+                _state.MoveQueue.Add(move);
+                SetNextMoveMessage();
+                SetInventory();
+                SetQueue();
+            }
+        }
+
+        private void btnUp_Click(object sender, EventArgs e)
+        {
+            var index = moves.SelectedIndex();
+            _state.MoveQueue.Swap(index, index - 1);
+            SetQueue();
+            SetNextMoveMessage();
+        }
+
+        private void btnDown_Click(object sender, EventArgs e)
+        {
+
+            var index = moves.SelectedIndex();
+            _state.MoveQueue.Swap(index, index + 1);
+            SetQueue();
+            SetNextMoveMessage();
+        }
+
+        private void btnRemove_Click(object sender, EventArgs e)
+        {
+            var index = moves.SelectedIndex();
+            if (index >= 0)
+            {
+                _state.MoveQueue.RemoveAt(index);
+                SetQueue();
+                SetInventory();
                 SetNextMoveMessage();
             }
         }
@@ -217,6 +297,13 @@ namespace TheGame
             if (list.SelectedItems.Count > 0)
                 return list.SelectedItems[0];
             return null;
+        }
+
+        public static int SelectedIndex(this ListView list)
+        {
+            if (list.SelectedIndices.Count > 0)
+                return list.SelectedIndices[0];
+            return -1;
         }
 
         public static string SubItemText(this ListViewItem item, int index)

@@ -15,12 +15,14 @@ namespace TheGame
         private readonly GameState _state;
         private readonly RulesEngine _rules;
         private readonly IStrategy _strategy = new RootStrategy();
+        private bool _readonly = false;
 
         public GameLoop(GameState state, RulesEngine rules)
         {
             client = new HttpClient();
             client.DefaultRequestHeaders.Add("apiKey", "3f1d83f7-f778-425f-8a02-aa7001713183");
-            client.BaseAddress = new Uri("http://thegame.nerderylabs.com");
+            //client.BaseAddress = new Uri("http://thegame.nerderylabs.com");
+            client.BaseAddress = new Uri("http://thegame.nerderylabs.com:1337");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             _state = state;
@@ -34,10 +36,15 @@ namespace TheGame
             {
                 if (_strategy.CanPollPoints(_state, _rules))
                 {
-                    var response = await PostForPoints();
+                    if (!_readonly)
+                    {
+                        var response = await PostForPoints();
+                        _state.LastPoints = DateTime.UtcNow;
 
-                    _state.Points = response.Points;
-                    _state.LastMessages = response.Messages;
+                        _state.Points = response.Points;
+                        _state.LastMessages = response.Messages;
+                    }
+
                     _state.Effects = await GetEffects();
                     _state.Leaderboard = await GetLeaderboard();
                 }
@@ -49,8 +56,6 @@ namespace TheGame
                     };
                 }
 
-                // last loop
-                _state.LastPoints = DateTime.UtcNow;
             }
             catch (Exception e)
             {
@@ -59,22 +64,30 @@ namespace TheGame
 
             if (_state.NextMove == null || _state.NextMove.Mode == ItemMode.Automatic)
             {
-                _state.NextMove = _strategy.GetMove(_state, _rules);
+                _state.NextAutomaticMove = _strategy.GetMove(_state, _rules);
             }
 
-            if (_rules.CanUseItem() && _state.NextMove != null)
+            if (_rules.CanUseItem() && _state.NextMove != null && !_readonly)
             {
                 try
                 {
-                    var useResult = await UseItem(_state.NextMove.Item, _state.NextMove.Target);
-                    _state.LastMessages.Insert(0, $"{_state.NextMove.Mode}ly used {_state.NextMove.Item.Name} on '{_state.NextMove.Target}'");
+                    var nextMove = _state.NextMove;
+
+                    var useResult = await UseItem(nextMove.Item, nextMove.Target);
+                    _state.LastMessages.Insert(0, $"{nextMove.Mode}ly used {nextMove.Item.Name} on '{nextMove.Target}'");
                     _state.LastMessages.InsertRange(0, useResult.Messages);
-                    _state.NextMove = null;
+
+                    if (nextMove.Mode == ItemMode.Manual)
+                        _state.MoveQueue.Pop();
+                    else
+                    {
+                        _state.NextAutomaticMove = null;
+                    }
                 }
                 catch (AggregateException e)
                 {
                     e.Log("Using Item");
-                    _state.NextMove = null;
+                    _state.NextAutomaticMove = null;
                 }
             }
         }
@@ -82,16 +95,29 @@ namespace TheGame
 
         public async Task<PollResponse> PostForPoints()
         {
-            var result = await Post("/points");
-            var response = JsonConvert.DeserializeObject<PollResponse>(result);
-            response.LogMessages();
-
-            if (response.Item != null)
+            for (int i = 0; i < 3; i++)
             {
-                _state.Items.AddRange(response.ExtractItems());
+                var result = await Post("/points");
+                var response = JsonConvert.DeserializeObject<PollResponse>(result);
+                if (response == null)
+                {
+                    Log.Write("Got empty reponse from /points. Trying again (1/3)");
+                    await Task.Delay(100);
+                    continue;
+                }
+
+                response.LogMessages();
+
+                if (response.Item != null)
+                {
+                    _state.Items.AddRange(response.ExtractItems());
+                }
+
+                return response;
             }
 
-            return response;
+            Log.Write("Could not load points");
+            throw new Exception("Could not load points");
         }
 
         public async Task<string[]> GetEffects()
@@ -145,7 +171,7 @@ namespace TheGame
 
             var response = await Post(url);
 
-            var result = response.StartsWith("No", StringComparison.Ordinal) ? null : JsonConvert.DeserializeObject<UseItemResult>(response);
+            var result = response.StartsWith("No", StringComparison.Ordinal) || response.Contains("Invalid item GUID") ? null : JsonConvert.DeserializeObject<UseItemResult>(response);
             if (result == null)
             {
                 result = UseItemResult.NullObject;
@@ -162,8 +188,9 @@ namespace TheGame
 
         private async Task<string> Post(string url, string body = null)
         {
+            Log.Write("POST " + url);
             var response = await client.PostAsync(url, body == null ? null : new StringContent(body)).Result.Content.ReadAsStringAsync();
-            Log.Write($"POST {url} : {response}");
+            Log.Write($"response: {response}");
 
             return response;
         }

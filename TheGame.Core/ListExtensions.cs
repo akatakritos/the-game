@@ -23,5 +23,15 @@ namespace TheGame
 
             return queue[0];
         }
+
+        public static void Swap<T>(this List<T> list, int index1, int index2)
+        {
+            if (index2 < 0 || index1 < 0 || index2 >= list.Count || index1 >= list.Count)
+                return;
+
+            T tmp = list[index2];
+            list[index2] = list[index1];
+            list[index1] = tmp;
+        }
     }
 }
