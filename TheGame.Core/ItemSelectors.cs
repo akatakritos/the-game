@@ -7,13 +7,13 @@ namespace TheGame
 {
     public interface IMoveSelector
     {
-        Move GetNextMove(GameState state, RulesEngine rules);
+        Move GetNextMove(GameState state);
     }
 
     public interface IStrategy
     {
-        Move GetMove(GameState state, RulesEngine rules);
-        bool CanPollPoints(GameState state, RulesEngine rules);
+        Move GetMove(GameState state);
+        bool CanPollPoints(GameState state);
     }
 
     public abstract class BaseStrategy : IStrategy
@@ -21,11 +21,11 @@ namespace TheGame
 
         protected IList<IMoveSelector> MoveSelectors { get; } = new List<IMoveSelector>();
 
-        public virtual Move GetMove(GameState state, RulesEngine rules)
+        public virtual Move GetMove(GameState state)
         {
             foreach (var selector in MoveSelectors)
             {
-                var move = selector.GetNextMove(state, rules);
+                var move = selector.GetNextMove(state);
                 if (move != null)
                     return move;
             }
@@ -33,7 +33,7 @@ namespace TheGame
             return null;
         }
 
-        public virtual bool CanPollPoints(GameState state, RulesEngine rules)
+        public virtual bool CanPollPoints(GameState state)
         {
             return true;
         }
@@ -91,21 +91,21 @@ namespace TheGame
                     return _losingStrategy;
         }
 
-        public Move GetMove(GameState state, RulesEngine rules)
+        public Move GetMove(GameState state)
         {
-            return InternalStrategy(state).GetMove(state, rules);
+            return InternalStrategy(state).GetMove(state);
         }
 
-        public bool CanPollPoints(GameState state, RulesEngine rules)
+        public bool CanPollPoints(GameState state)
         {
-            return InternalStrategy(state).CanPollPoints(state, rules);
+            return InternalStrategy(state).CanPollPoints(state);
         }
     }
 
 
     public class PowerupSelector : IMoveSelector
     {
-        public Move GetNextMove(GameState state, RulesEngine rules)
+        public Move GetNextMove(GameState state)
         {
             if (state.PowerUpItems.Any())
             {
@@ -124,7 +124,7 @@ namespace TheGame
 
     public class DefenseSelector : IMoveSelector
     {
-        public Move GetNextMove(GameState state, RulesEngine rules)
+        public Move GetNextMove(GameState state)
         {
             if (state.DefensiveItems.Any())
             {
@@ -150,7 +150,7 @@ namespace TheGame
 
     public class AttackSelector : IMoveSelector
     {
-        public Move GetNextMove(GameState state, RulesEngine rules)
+        public Move GetNextMove(GameState state)
         {
             if (state.AttackItems.Any())
             {

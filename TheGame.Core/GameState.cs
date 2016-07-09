@@ -44,10 +44,23 @@ namespace TheGame
         public IEnumerable<LeaderboardResult> Leaderboard { get; set; } = new LeaderboardResult[0];
 
         [JsonIgnore]
-        public int Position => Leaderboard.IndexOf(l => l.PlayerName == Constants.Me);
+        public int Position => PositionOf(Constants.Me);
 
         [JsonIgnore]
         public bool OnLeaderboard => Leaderboard.Any(l => l.PlayerName == Constants.Me);
+
+        public LeaderboardResult OpponentAtDelta(int i)
+        {
+            if (!OnLeaderboard)
+                return null;
+
+            return Leaderboard.ElementAtOrDefault(Position + i);
+        }
+
+        public int PositionOf(string player)
+        {
+            return Leaderboard.IndexOf(l => l.PlayerName == player);
+        }
     }
 
     public class GameItem

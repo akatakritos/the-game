@@ -32,12 +32,12 @@ namespace TheGame
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
             "5",
             "Foobar",
             "The foobar item does stuff",
             "4"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
             "Foo Item",
             "mburke"}, -1);
             this.leaderboard = new System.Windows.Forms.ListView();
@@ -107,7 +107,7 @@ namespace TheGame
             this.inventory.FullRowSelect = true;
             this.inventory.HideSelection = false;
             this.inventory.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem7});
+            listViewItem1});
             this.inventory.Location = new System.Drawing.Point(11, 271);
             this.inventory.Margin = new System.Windows.Forms.Padding(2);
             this.inventory.Name = "inventory";
@@ -147,6 +147,7 @@ namespace TheGame
             // 
             // btnSchedule
             // 
+            this.btnSchedule.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSchedule.Location = new System.Drawing.Point(429, 339);
             this.btnSchedule.Margin = new System.Windows.Forms.Padding(2);
             this.btnSchedule.Name = "btnSchedule";
@@ -158,6 +159,7 @@ namespace TheGame
             // 
             // txtTarget
             // 
+            this.txtTarget.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.txtTarget.Location = new System.Drawing.Point(429, 291);
             this.txtTarget.Margin = new System.Windows.Forms.Padding(2);
             this.txtTarget.Name = "txtTarget";
@@ -177,14 +179,16 @@ namespace TheGame
             // 
             // moves
             // 
+            this.moves.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.moves.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader8,
             this.columnHeader9});
             this.moves.FullRowSelect = true;
             this.moves.HideSelection = false;
-            listViewItem8.Tag = "Foo Item";
+            listViewItem2.Tag = "Foo Item";
             this.moves.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem8});
+            listViewItem2});
             this.moves.Location = new System.Drawing.Point(496, 271);
             this.moves.Name = "moves";
             this.moves.Size = new System.Drawing.Size(164, 164);
@@ -203,6 +207,7 @@ namespace TheGame
             // 
             // btnRemove
             // 
+            this.btnRemove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnRemove.Location = new System.Drawing.Point(429, 367);
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(52, 23);
@@ -213,6 +218,7 @@ namespace TheGame
             // 
             // btnUp
             // 
+            this.btnUp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnUp.Location = new System.Drawing.Point(666, 335);
             this.btnUp.Name = "btnUp";
             this.btnUp.Size = new System.Drawing.Size(75, 23);
@@ -223,6 +229,7 @@ namespace TheGame
             // 
             // btnDown
             // 
+            this.btnDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnDown.Location = new System.Drawing.Point(666, 364);
             this.btnDown.Name = "btnDown";
             this.btnDown.Size = new System.Drawing.Size(75, 23);

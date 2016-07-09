@@ -60,6 +60,11 @@ namespace TheGame
         public string Title { get; set; }
         public List<string> Effects { get; set; }
         public List<Badge> Badges { get; set; }
+
+        public override string ToString()
+        {
+            return PlayerName;
+        }
     }
 
 

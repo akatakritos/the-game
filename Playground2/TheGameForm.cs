@@ -84,6 +84,8 @@ namespace TheGame
 
         private void SetInventory()
         {
+            inventory.BeginUpdate();
+
             var groups = _state.Items.GroupBy(i => i.Name)
                 .Select(g => new { Item = g.First(), Count = g.Count() })
                 .OrderByDescending(g => g.Count)
@@ -119,6 +121,8 @@ namespace TheGame
 
             while (inventory.Items.Count > groups.Count)
                 inventory.Items.RemoveAt(inventory.Items.Count - 1);
+
+            inventory.EndUpdate();
         }
 
         private void Sleep()
@@ -145,6 +149,8 @@ namespace TheGame
 
         private void SetLeaderboard()
         {
+            leaderboard.BeginUpdate();
+
             var leaders = _state.Leaderboard.ToArray();
             for (int i = 0; i < leaders.Length; i++)
             {
@@ -183,10 +189,13 @@ namespace TheGame
                 }
             }
 
+            leaderboard.EndUpdate();
         }
 
         public void SetQueue()
         {
+            moves.BeginUpdate();
+
             for (int i = 0; i < _state.MoveQueue.Count; i++)
             {
                 var move = _state.MoveQueue[i];
@@ -202,6 +211,8 @@ namespace TheGame
 
             while (moves.Items.Count > _state.MoveQueue.Count)
                 moves.Items.RemoveAt(moves.Items.Count - 1);
+
+            moves.EndUpdate();
         }
 
 

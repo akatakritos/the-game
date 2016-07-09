@@ -15,7 +15,7 @@ namespace TheGame
         private readonly GameState _state;
         private readonly RulesEngine _rules;
         private readonly IStrategy _strategy = new RootStrategy();
-        private bool _readonly = false;
+        private bool _readonly = true;
 
         public GameLoop(GameState state, RulesEngine rules)
         {
@@ -34,7 +34,7 @@ namespace TheGame
             // DONT TOUCH ANY FORM CONTROLS IN HERE
             try
             {
-                if (_strategy.CanPollPoints(_state, _rules))
+                if (_strategy.CanPollPoints(_state))
                 {
                     if (!_readonly)
                     {
@@ -64,7 +64,7 @@ namespace TheGame
 
             if (_state.NextMove == null || _state.NextMove.Mode == ItemMode.Automatic)
             {
-                _state.NextAutomaticMove = _strategy.GetMove(_state, _rules);
+                _state.NextAutomaticMove = _strategy.GetMove(_state);
             }
 
             if (_rules.CanUseItem() && _state.NextMove != null && !_readonly)
