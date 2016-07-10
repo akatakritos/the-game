@@ -1,0 +1,54 @@
+﻿@model IList<LeaderboardSite.Models.LeaderboardResult>
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<table class="table">
+    <tr>
+        <th>Rank</th>
+        <th>Score</th>
+        <th>Player</th>
+        <th>Effects</th>
+    </tr>
+    @for(int i = 0; i < Model.Count; i++)
+    {
+        <tr>
+            <td>@(i + 1)</td>
+            <td>@Model[i].Points</td>
+            <td>@Model[i].PlayerName</td>
+            <td>@Model[i].EffectsList()</td>
+        </tr>
+    }
+</table>
+
+<script>
+    (function() {
+
+        function processHashChange() {
+
+            if (window.location.hash) {
+                var search = window.location.hash.substring(1);
+                var rows = document.getElementsByTagName("tr");
+
+                for (var i = 0; i < rows.length; i++) {
+                    if (rows[i].innerText.indexOf(search) > -1) {
+                        rows[i].classList.add("info");
+                    }
+                }
+            }
+        }
+
+        window.addEventListener("hashchange", processHashChange);
+
+        processHashChange();
+
+        function refresh() {
+            console.log("reloading")
+            window.location.reload();
+            //window.location = "/" + window.location.hash;
+        }
+
+        setTimeout(refresh, 1000 * 60 * 3);
+
+    })()
+</script>

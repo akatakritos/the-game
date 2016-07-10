@@ -15,7 +15,7 @@ namespace TheGame
         private readonly GameState _state;
         private readonly RulesEngine _rules;
         private readonly IStrategy _strategy = new RootStrategy();
-        public bool ReadOnlyMode { get; } = true;
+        public bool ReadOnlyMode { get; } = Settings.ReadonlyMode;
 
         public GameLoop(GameState state, RulesEngine rules)
         {
@@ -36,14 +36,14 @@ namespace TheGame
             {
                 if (_strategy.CanPollPoints(_state))
                 {
-                    if (!ReadOnlyMode)
+                    if (!ReadOnlyMode && _state.PollingEnabled)
                     {
                         var response = await PostForPoints();
-                        _state.LastPoints = DateTime.UtcNow;
 
                         _state.Points = response.Points;
                         _state.LastMessages = response.Messages;
                     }
+
 
                     _state.Effects = await GetEffects();
                     _state.Leaderboard = await GetLeaderboard();
@@ -55,6 +55,8 @@ namespace TheGame
                         "Don't want to poll right now."
                     };
                 }
+
+                _state.LastTick = DateTime.UtcNow;
 
             }
             catch (Exception e)
@@ -90,6 +92,8 @@ namespace TheGame
                     _state.NextAutomaticMove = null;
                 }
             }
+
+            TooManyVotesStateProcessor.ProcessState(_state);
         }
 
 

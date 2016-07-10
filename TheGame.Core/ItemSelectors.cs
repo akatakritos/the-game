@@ -56,15 +56,29 @@ namespace TheGame
         }
     }
 
-    public class GrowthStrategy : BaseStrategy
+    /// <summary>
+    /// Growth focused. Right now its only powerups
+    /// </summary>
+    public class GrowthHackingStrategy : BaseStrategy
     {
-        public GrowthStrategy()
+        public GrowthHackingStrategy()
         {
             MoveSelectors.Add(new PowerupSelector());
             //MoveSelectors.Add(new AttackSelector());
         }
     }
 
+    /// <summary>
+    /// Strategy that plays no items automatically
+    /// </summary>
+    public class ManualStrategy : BaseStrategy
+    {
+        // no selectors means no moves played
+    }
+
+    /// <summary>
+    /// Switches between two strategies depending if on leaderboard or not
+    /// </summary>
     public class RootStrategy : IStrategy
     {
         private readonly IStrategy _leaderboardStrategy;
@@ -73,8 +87,8 @@ namespace TheGame
 
         public RootStrategy()
         {
-            _leaderboardStrategy = new DefensiveStrategy();
-            _losingStrategy = new GrowthStrategy();
+            _leaderboardStrategy = new ManualStrategy();
+            _losingStrategy = new GrowthHackingStrategy();
         }
 
         private IStrategy InternalStrategy(GameState state)

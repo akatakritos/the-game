@@ -38,10 +38,11 @@ namespace TheGame
         {
             try
             {
-
                 Log.Write("TICK");
                 SaveState(_state);
+
                 await _loop.Tick();
+
                 CopyState();
             }
             catch (Exception ex)
@@ -60,6 +61,14 @@ namespace TheGame
             SetQueue();
             CopyMessages();
             SetNextMoveMessage();
+            SetStatusBar();
+        }
+
+        private void SetStatusBar()
+        {
+            var cst = TimeZoneInfo.ConvertTimeFromUtc(_state.LastTick, Constants.TimeZone);
+            lblLastTick.Text = cst.ToString("T");
+            lblPollingEnabled.Text = @"Polling: " + _state.PollingEnabled;
         }
 
         private void CopyMessages()
@@ -124,7 +133,7 @@ namespace TheGame
 
         private void Sleep()
         {
-            var nextTick = _state.LastPoints.AddMilliseconds(RulesEngine.PointsRateLimitMS);
+            var nextTick = _state.LastTick.AddMilliseconds(RulesEngine.PointsRateLimitMS);
             var sleepTime = nextTick - DateTime.UtcNow;
             if (sleepTime.TotalMilliseconds < 0)
                 sleepTime = TimeSpan.FromMilliseconds(10);
@@ -224,9 +233,25 @@ namespace TheGame
             return new GameState();
         }
 
+        private static DateTime _lastArchive = DateTime.UtcNow;
         private static void SaveState(GameState state)
         {
             File.WriteAllText("state.json", JsonConvert.SerializeObject(state));
+
+            if (DateTime.UtcNow - _lastArchive > TimeSpan.FromMinutes(Settings.ArchiveInterval))
+            {
+                Archive();
+                _lastArchive = DateTime.UtcNow;
+            }
+        }
+
+        private static void Archive()
+        {
+            if (!Directory.Exists("archive"))
+                Directory.CreateDirectory("archive");
+            var filename = $"archive\\state-{DateTime.UtcNow:yyyyMMddhhmm}.json";
+            Log.Write("Archiving state to " + filename);
+            File.Copy("state.json", filename);
         }
 
 
@@ -239,6 +264,7 @@ namespace TheGame
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
+            _timer.Stop();
             SaveState(_state);
             Log.Write("Shut down normally");
         }
@@ -272,15 +298,18 @@ namespace TheGame
         {
             var index = moves.SelectedIndex();
             _state.MoveQueue.Swap(index, index - 1);
+            moves.SelectItem(index - 1);
+
             SetQueue();
             SetNextMoveMessage();
         }
 
         private void btnDown_Click(object sender, EventArgs e)
         {
-
             var index = moves.SelectedIndex();
             _state.MoveQueue.Swap(index, index + 1);
+            moves.SelectItem(index + 1);
+
             SetQueue();
             SetNextMoveMessage();
         }
@@ -296,6 +325,11 @@ namespace TheGame
                 SetNextMoveMessage();
             }
         }
+
+        private void lblPollingEnabled_DoubleClick(object sender, EventArgs e)
+        {
+            _state.PollingEnabled = !_state.PollingEnabled;
+        }
     }
 
     public static class FormControlExtensions
@@ -305,6 +339,15 @@ namespace TheGame
             if (list.SelectedItems.Count > 0)
                 return list.SelectedItems[0];
             return null;
+        }
+
+        public static void SelectItem(this ListView list, int index)
+        {
+            if (index >= 0 && index < list.Items.Count)
+            {
+                for (int i = 0; i < list.Items.Count; i++)
+                    list.Items[i].Selected = i == index;
+            }
         }
 
         public static int SelectedIndex(this ListView list)

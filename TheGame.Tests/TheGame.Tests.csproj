@@ -63,6 +63,7 @@
     <Compile Include="AttackItemPipelineTests.cs" />
     <Compile Include="DefensiveItemSelectorTests.cs" />
     <Compile Include="GameStateExtensions.cs" />
+    <Compile Include="TooManyVotesStateProcessorTests.cs" />
     <Compile Include="PowerupSelectorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StateTest.cs" />

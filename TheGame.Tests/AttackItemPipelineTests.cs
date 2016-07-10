@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using NFluent;
+using NFluent.Extensions;
 
 using Xunit;
 
@@ -128,24 +129,27 @@ namespace TheGame.Tests
         }
     }
 
-    public class DontCrowbarIfPersonInFrontIsInvincibleTests : AttackItemPipelineTests
+    public class DontAutomaticallyTargetNextGuyIfIncinvibleTests : AttackItemPipelineTests
     {
-        [Fact]
-        public void ItRemovesCrowbarFromEligibleItems()
+
+        [Theory]
+        [InlineData("Crowbar")]
+        [InlineData("Red Shell")]
+        public void ItRemovesTheItemFromTheList(string autoTargetingItem)
         {
             State.CreateLeaderboard()
                 .AddLeader("eweiss")
                 .AddLeader("revans").WithEffects("Star")
                 .AddLeader(Constants.Me)
                 .Done();
-            State.AddItems("Crowbar", "Red Shell");
+            State.AddItems(autoTargetingItem, "Foo Item");
             var args = BuildArgsFromState();
-            var subject = new DontCrowbarIfPersonInFrontIsInvincible();
+            var subject = new AutomaticTargetNextGuyHandler();
 
             subject.Process(State, args);
 
-            Check.That(args.EligibleItems)
-                .Not.Contains("Crowbar");
+            Check.That(args.EligibleItems.Select(i => i.Name))
+                .Not.Contains(autoTargetingItem);
         }
     }
 
@@ -210,6 +214,46 @@ namespace TheGame.Tests
             Check.That(args.Selected).IsTrue();
             Check.That(args.SelectedItem.Name).IsEqualTo("Red Shell");
             Check.That(args.SelectedTarget).IsEqualTo("eweiss");
+        }
+    }
+
+    public class BananaHandlerTests : AttackItemPipelineTests
+    {
+        [Fact]
+        public void UsesBananaAgainstGuyBehindMe()
+        {
+            State.CreateLeaderboard()
+                .AddLeader("eweiss")
+                .AddLeader(Constants.Me)
+                .AddLeader("revans")
+                .Done();
+            State.AddItems("Banana Peel");
+            var args = BuildArgsFromState();
+            var subject = new BananaHandler();
+
+            subject.Process(State, args);
+
+            Check.That(args.Selected).IsTrue();
+            Check.That(args.SelectedItem.Name).IsEqualTo("Banana Peel");
+            Check.That(args.SelectedTarget).IsEqualTo("revans");
+        }
+
+        [Fact]
+        public void ItDoesntFreakOutIfThePlayerBehindMeIsNotEligible()
+        {
+            // for example if removed for being invincible
+            State.CreateLeaderboard()
+                .AddLeader("eweiss")
+                .AddLeader(Constants.Me)
+                .AddLeader("revans")
+                .Done();
+            var args = BuildArgsFromState();
+            args.EligibleTargets.RemoveAt(2); //remove revans
+            var subject = new BananaHandler();
+
+            subject.Process(State, args);
+
+            Check.That(args.Selected).IsFalse();
         }
     }
 }

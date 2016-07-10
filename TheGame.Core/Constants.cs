@@ -25,7 +25,7 @@ namespace TheGame
 
         public static readonly string[] AttackItemNames =
         {
-            "Fire Flower", "Red Shell", "Cardboard Box", "Charizard", "Hard Knuckle", "Crowbar",
+            "Fire Flower", "Red Shell", "Charizard", "Hard Knuckle", "Crowbar",
             "Green Shell", "Hadouken", "Holy Water", "Fus Ro Dah", "Buster Sword", "Box of Bees",
             "Rail Gun",
         };
@@ -42,12 +42,13 @@ namespace TheGame
             "Golden Gun",
             "Bullet Bill",
             "Morph Ball",
-            "Triforce of Wisdom"
+            "Triforce of Wisdom",
+            "Cardboard Box"
 
         };
 
         public const string Me = "mburke";
 
-
+        public static TimeZoneInfo TimeZone { get; } = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
     }
 }

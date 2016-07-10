@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheGame.Core", "TheGame.Cor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheGame.Tests", "TheGame.Tests\TheGame.Tests.csproj", "{C0EF7ACE-E281-45A4-AF20-77778CD20E16}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeaderboardSite", "LeaderboardSite\LeaderboardSite.csproj", "{50A29C34-F1FC-420B-B198-7623B1AD638F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{C0EF7ACE-E281-45A4-AF20-77778CD20E16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0EF7ACE-E281-45A4-AF20-77778CD20E16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0EF7ACE-E281-45A4-AF20-77778CD20E16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50A29C34-F1FC-420B-B198-7623B1AD638F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50A29C34-F1FC-420B-B198-7623B1AD638F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50A29C34-F1FC-420B-B198-7623B1AD638F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50A29C34-F1FC-420B-B198-7623B1AD638F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

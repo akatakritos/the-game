@@ -11,8 +11,16 @@ namespace TheGame
         public static readonly string[] UserWhitelist = { "mburke" };
 
         public decimal Points { get; set; }
+
         public DateTime LastItemUse = DateTime.MinValue;
-        public DateTime LastPoints = DateTime.MinValue;
+
+
+        [JsonProperty(PropertyName = "LastPoints")]
+        public DateTime LastTick = DateTime.MinValue;
+
+        public bool PollingEnabled { get; set; } = true;
+
+        public DateTime ReEnabledPollsAt { get; set; } = DateTime.MaxValue;
 
         public List<GameItem> Items { get; set; } = new List<GameItem>();
 
@@ -49,6 +57,11 @@ namespace TheGame
         [JsonIgnore]
         public bool OnLeaderboard => Leaderboard.Any(l => l.PlayerName == Constants.Me);
 
+        /// <summary>
+        /// Negative is in front of you
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
         public LeaderboardResult OpponentAtDelta(int i)
         {
             if (!OnLeaderboard)

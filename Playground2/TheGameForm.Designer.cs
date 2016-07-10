@@ -32,12 +32,12 @@ namespace TheGame
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
             "5",
             "Foobar",
             "The foobar item does stuff",
             "4"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem(new string[] {
             "Foo Item",
             "mburke"}, -1);
             this.leaderboard = new System.Windows.Forms.ListView();
@@ -47,8 +47,8 @@ namespace TheGame
             this.inventory = new System.Windows.Forms.ListView();
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.lblNextMove = new System.Windows.Forms.Label();
             this.btnSchedule = new System.Windows.Forms.Button();
             this.txtTarget = new System.Windows.Forms.TextBox();
@@ -59,6 +59,10 @@ namespace TheGame
             this.btnRemove = new System.Windows.Forms.Button();
             this.btnUp = new System.Windows.Forms.Button();
             this.btnDown = new System.Windows.Forms.Button();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.lblLastTick = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblPollingEnabled = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // leaderboard
@@ -107,14 +111,15 @@ namespace TheGame
             this.inventory.FullRowSelect = true;
             this.inventory.HideSelection = false;
             this.inventory.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1});
+            listViewItem3});
             this.inventory.Location = new System.Drawing.Point(11, 271);
             this.inventory.Margin = new System.Windows.Forms.Padding(2);
             this.inventory.Name = "inventory";
-            this.inventory.Size = new System.Drawing.Size(407, 165);
+            this.inventory.Size = new System.Drawing.Size(407, 259);
             this.inventory.TabIndex = 1;
             this.inventory.UseCompatibleStateImageBehavior = false;
             this.inventory.View = System.Windows.Forms.View.Details;
+            this.inventory.DoubleClick += new System.EventHandler(this.btnSchedule_Click);
             // 
             // columnHeader4
             // 
@@ -126,14 +131,14 @@ namespace TheGame
             this.columnHeader5.Text = "Name";
             this.columnHeader5.Width = 117;
             // 
-            // columnHeader7
-            // 
-            this.columnHeader7.Text = "Rarity";
-            // 
             // columnHeader6
             // 
             this.columnHeader6.Text = "Description";
             this.columnHeader6.Width = 136;
+            // 
+            // columnHeader7
+            // 
+            this.columnHeader7.Text = "Rarity";
             // 
             // lblNextMove
             // 
@@ -171,10 +176,10 @@ namespace TheGame
             this.log.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.log.FormattingEnabled = true;
-            this.log.Location = new System.Drawing.Point(11, 440);
+            this.log.Location = new System.Drawing.Point(11, 546);
             this.log.Margin = new System.Windows.Forms.Padding(2);
             this.log.Name = "log";
-            this.log.Size = new System.Drawing.Size(727, 69);
+            this.log.Size = new System.Drawing.Size(727, 147);
             this.log.TabIndex = 11;
             // 
             // moves
@@ -186,12 +191,12 @@ namespace TheGame
             this.columnHeader9});
             this.moves.FullRowSelect = true;
             this.moves.HideSelection = false;
-            listViewItem2.Tag = "Foo Item";
+            listViewItem4.Tag = "Foo Item";
             this.moves.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem2});
+            listViewItem4});
             this.moves.Location = new System.Drawing.Point(496, 271);
             this.moves.Name = "moves";
-            this.moves.Size = new System.Drawing.Size(164, 164);
+            this.moves.Size = new System.Drawing.Size(164, 259);
             this.moves.TabIndex = 12;
             this.moves.UseCompatibleStateImageBehavior = false;
             this.moves.View = System.Windows.Forms.View.Details;
@@ -238,11 +243,38 @@ namespace TheGame
             this.btnDown.UseVisualStyleBackColor = true;
             this.btnDown.Click += new System.EventHandler(this.btnDown_Click);
             // 
+            // statusStrip1
+            // 
+            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.lblLastTick,
+            this.lblPollingEnabled});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 666);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(749, 38);
+            this.statusStrip1.TabIndex = 16;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // lblLastTick
+            // 
+            this.lblLastTick.Name = "lblLastTick";
+            this.lblLastTick.Size = new System.Drawing.Size(238, 33);
+            this.lblLastTick.Text = "toolStripStatusLabel1";
+            // 
+            // lblPollingEnabled
+            // 
+            this.lblPollingEnabled.DoubleClickEnabled = true;
+            this.lblPollingEnabled.Name = "lblPollingEnabled";
+            this.lblPollingEnabled.Size = new System.Drawing.Size(238, 33);
+            this.lblPollingEnabled.Text = "toolStripStatusLabel2";
+            this.lblPollingEnabled.DoubleClick += new System.EventHandler(this.lblPollingEnabled_DoubleClick);
+            // 
             // TheGameForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(749, 520);
+            this.ClientSize = new System.Drawing.Size(749, 704);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.btnDown);
             this.Controls.Add(this.btnUp);
             this.Controls.Add(this.btnRemove);
@@ -258,6 +290,8 @@ namespace TheGame
             this.Text = "Teh Game";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -284,6 +318,9 @@ namespace TheGame
         private System.Windows.Forms.Button btnRemove;
         private System.Windows.Forms.Button btnUp;
         private System.Windows.Forms.Button btnDown;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel lblLastTick;
+        private System.Windows.Forms.ToolStripStatusLabel lblPollingEnabled;
     }
 }
 

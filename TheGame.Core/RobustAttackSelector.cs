@@ -4,14 +4,32 @@ using System.Linq;
 
 namespace TheGame
 {
+    public class RobustAttackStrategy : IStrategy
+    {
+        private readonly RobustAttackSelector _selector = new RobustAttackSelector();
+
+        public Move GetMove(GameState state)
+        {
+            return _selector.GetNextMove(state);
+        }
+
+        public bool CanPollPoints(GameState state)
+        {
+            return true;
+        }
+    }
+
     public class RobustAttackSelector : IMoveSelector
     {
-        readonly List<IAttackPipeline> _pipeline = new List<IAttackPipeline>();
+        private readonly List<IAttackPipeline> _pipeline = new List<IAttackPipeline>();
+
         public RobustAttackSelector()
         {
             _pipeline.Add(new PlayerFilter(Constants.Me));
+            _pipeline.Add(new AttackItemFilter());
             _pipeline.Add(new InvinciblePlayerFilter());
-            _pipeline.Add(new DontCrowbarIfPersonInFrontIsInvincible());
+            _pipeline.Add(new BananaHandler());
+            _pipeline.Add(new AutomaticTargetNextGuyHandler());
             _pipeline.Add(new OrderOpponentsInFrontOfMeFilter());
             _pipeline.Add(new ChooseWeaponAndTarget());
         }
@@ -114,19 +132,22 @@ namespace TheGame
         }
     }
 
-    public class DontCrowbarIfPersonInFrontIsInvincible : IAttackPipeline
+    public class AutomaticTargetNextGuyHandler : IAttackPipeline
     {
+        public static readonly IReadOnlyCollection<string> ItemsThatAutomaticallyAttackNextGuy = new List<string>()
+        { "Crowbar", "Red Shell" };
+
         public void Process(GameState state, AttackItemPipelineArgs args)
         {
             if (state.OnLeaderboard)
             {
-                var botAhead = state.OpponentAtDelta(1);
+                var botAhead = state.OpponentAtDelta(-1);
                 if (botAhead != null)
                 {
                     if (botAhead.Effects.Any(e => Constants.DefenseiveItems.Contains(e)))
                     {
                         args.EligibleItems = args.EligibleItems
-                            .Where(i => i.Name != "Crowbar")
+                            .Where(i => !ItemsThatAutomaticallyAttackNextGuy.Contains(i.Name))
                             .ToList();
                     }
                 }
@@ -159,6 +180,26 @@ namespace TheGame
                 }
 
                 args.EligibleTargets = output;
+            }
+        }
+    }
+
+    public class BananaHandler : IAttackPipeline
+    {
+        public void Process(GameState state, AttackItemPipelineArgs args)
+        {
+            if (state.OnLeaderboard && args.EligibleItems.Any(i => i.Name == "Banana Peel"))
+            {
+                var behindMe = state.OpponentAtDelta(1);
+                var target = behindMe == null
+                    ? null
+                    : args.EligibleTargets.FirstOrDefault(t => t.PlayerName == behindMe.PlayerName);
+
+                if (target != null)
+                {
+                    var banana = args.EligibleItems.First(i => i.Name == "Banana Peel");
+                    args.Select(banana, target.PlayerName);
+                }
             }
         }
     }
