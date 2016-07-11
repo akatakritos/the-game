@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheGame.Tests", "TheGame.Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeaderboardSite", "LeaderboardSite\LeaderboardSite.csproj", "{50A29C34-F1FC-420B-B198-7623B1AD638F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogAnalyzer", "LogAnalyzer\LogAnalyzer.csproj", "{7D8A8C24-2C85-420D-A596-C7F472A1DA34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{50A29C34-F1FC-420B-B198-7623B1AD638F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50A29C34-F1FC-420B-B198-7623B1AD638F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50A29C34-F1FC-420B-B198-7623B1AD638F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D8A8C24-2C85-420D-A596-C7F472A1DA34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D8A8C24-2C85-420D-A596-C7F472A1DA34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D8A8C24-2C85-420D-A596-C7F472A1DA34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D8A8C24-2C85-420D-A596-C7F472A1DA34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

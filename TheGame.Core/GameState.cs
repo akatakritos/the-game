@@ -82,6 +82,7 @@ namespace TheGame
         public string Id { get; set; }
         public string Description { get; set; }
         public int Rarity { get; set; }
+        public DateTime ItemAcquired { get; set; }
 
         public override string ToString()
         {

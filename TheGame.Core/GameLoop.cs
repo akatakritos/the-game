@@ -31,6 +31,7 @@ namespace TheGame
 
         public async Task Tick()
         {
+            _state.LastMessages.Clear();
             // DONT TOUCH ANY FORM CONTROLS IN HERE
             try
             {
@@ -94,6 +95,7 @@ namespace TheGame
             }
 
             TooManyVotesStateProcessor.ProcessState(_state);
+            ExpiredItemRemover.ProcessState(_state);
         }
 
 

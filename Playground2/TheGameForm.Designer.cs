@@ -32,12 +32,12 @@ namespace TheGame
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
             "5",
             "Foobar",
             "The foobar item does stuff",
             "4"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
             "Foo Item",
             "mburke"}, -1);
             this.leaderboard = new System.Windows.Forms.ListView();
@@ -78,7 +78,7 @@ namespace TheGame
             this.leaderboard.Location = new System.Drawing.Point(6, 6);
             this.leaderboard.Margin = new System.Windows.Forms.Padding(2);
             this.leaderboard.Name = "leaderboard";
-            this.leaderboard.Size = new System.Drawing.Size(739, 241);
+            this.leaderboard.Size = new System.Drawing.Size(761, 241);
             this.leaderboard.TabIndex = 0;
             this.leaderboard.UseCompatibleStateImageBehavior = false;
             this.leaderboard.View = System.Windows.Forms.View.Details;
@@ -111,11 +111,11 @@ namespace TheGame
             this.inventory.FullRowSelect = true;
             this.inventory.HideSelection = false;
             this.inventory.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem3});
+            listViewItem1});
             this.inventory.Location = new System.Drawing.Point(11, 271);
             this.inventory.Margin = new System.Windows.Forms.Padding(2);
             this.inventory.Name = "inventory";
-            this.inventory.Size = new System.Drawing.Size(407, 259);
+            this.inventory.Size = new System.Drawing.Size(429, 317);
             this.inventory.TabIndex = 1;
             this.inventory.UseCompatibleStateImageBehavior = false;
             this.inventory.View = System.Windows.Forms.View.Details;
@@ -153,7 +153,7 @@ namespace TheGame
             // btnSchedule
             // 
             this.btnSchedule.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSchedule.Location = new System.Drawing.Point(429, 339);
+            this.btnSchedule.Location = new System.Drawing.Point(451, 339);
             this.btnSchedule.Margin = new System.Windows.Forms.Padding(2);
             this.btnSchedule.Name = "btnSchedule";
             this.btnSchedule.Size = new System.Drawing.Size(52, 23);
@@ -165,7 +165,7 @@ namespace TheGame
             // txtTarget
             // 
             this.txtTarget.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTarget.Location = new System.Drawing.Point(429, 291);
+            this.txtTarget.Location = new System.Drawing.Point(451, 291);
             this.txtTarget.Margin = new System.Windows.Forms.Padding(2);
             this.txtTarget.Name = "txtTarget";
             this.txtTarget.Size = new System.Drawing.Size(52, 20);
@@ -176,10 +176,10 @@ namespace TheGame
             this.log.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.log.FormattingEnabled = true;
-            this.log.Location = new System.Drawing.Point(11, 546);
+            this.log.Location = new System.Drawing.Point(11, 604);
             this.log.Margin = new System.Windows.Forms.Padding(2);
             this.log.Name = "log";
-            this.log.Size = new System.Drawing.Size(727, 147);
+            this.log.Size = new System.Drawing.Size(749, 147);
             this.log.TabIndex = 11;
             // 
             // moves
@@ -191,12 +191,12 @@ namespace TheGame
             this.columnHeader9});
             this.moves.FullRowSelect = true;
             this.moves.HideSelection = false;
-            listViewItem4.Tag = "Foo Item";
+            listViewItem2.Tag = "Foo Item";
             this.moves.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem4});
-            this.moves.Location = new System.Drawing.Point(496, 271);
+            listViewItem2});
+            this.moves.Location = new System.Drawing.Point(518, 271);
             this.moves.Name = "moves";
-            this.moves.Size = new System.Drawing.Size(164, 259);
+            this.moves.Size = new System.Drawing.Size(164, 317);
             this.moves.TabIndex = 12;
             this.moves.UseCompatibleStateImageBehavior = false;
             this.moves.View = System.Windows.Forms.View.Details;
@@ -213,7 +213,7 @@ namespace TheGame
             // btnRemove
             // 
             this.btnRemove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRemove.Location = new System.Drawing.Point(429, 367);
+            this.btnRemove.Location = new System.Drawing.Point(451, 367);
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(52, 23);
             this.btnRemove.TabIndex = 13;
@@ -224,7 +224,7 @@ namespace TheGame
             // btnUp
             // 
             this.btnUp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnUp.Location = new System.Drawing.Point(666, 335);
+            this.btnUp.Location = new System.Drawing.Point(688, 335);
             this.btnUp.Name = "btnUp";
             this.btnUp.Size = new System.Drawing.Size(75, 23);
             this.btnUp.TabIndex = 14;
@@ -235,7 +235,7 @@ namespace TheGame
             // btnDown
             // 
             this.btnDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDown.Location = new System.Drawing.Point(666, 364);
+            this.btnDown.Location = new System.Drawing.Point(688, 364);
             this.btnDown.Name = "btnDown";
             this.btnDown.Size = new System.Drawing.Size(75, 23);
             this.btnDown.TabIndex = 15;
@@ -249,23 +249,23 @@ namespace TheGame
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lblLastTick,
             this.lblPollingEnabled});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 666);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 764);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(749, 38);
+            this.statusStrip1.Size = new System.Drawing.Size(771, 37);
             this.statusStrip1.TabIndex = 16;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // lblLastTick
             // 
             this.lblLastTick.Name = "lblLastTick";
-            this.lblLastTick.Size = new System.Drawing.Size(238, 33);
+            this.lblLastTick.Size = new System.Drawing.Size(238, 32);
             this.lblLastTick.Text = "toolStripStatusLabel1";
             // 
             // lblPollingEnabled
             // 
             this.lblPollingEnabled.DoubleClickEnabled = true;
             this.lblPollingEnabled.Name = "lblPollingEnabled";
-            this.lblPollingEnabled.Size = new System.Drawing.Size(238, 33);
+            this.lblPollingEnabled.Size = new System.Drawing.Size(238, 32);
             this.lblPollingEnabled.Text = "toolStripStatusLabel2";
             this.lblPollingEnabled.DoubleClick += new System.EventHandler(this.lblPollingEnabled_DoubleClick);
             // 
@@ -273,7 +273,7 @@ namespace TheGame
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(749, 704);
+            this.ClientSize = new System.Drawing.Size(771, 801);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.btnDown);
             this.Controls.Add(this.btnUp);

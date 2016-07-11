@@ -42,7 +42,8 @@ namespace TheGame
                 Name = fields.Name,
                 Description = fields.Description,
                 Id = fields.Id,
-                Rarity = fields.Rarity
+                Rarity = fields.Rarity,
+                ItemAcquired = DateTime.UtcNow
             });
         }
     }
@@ -102,6 +103,7 @@ namespace TheGame
                         Name = match.Groups[2].Value,
                         Id = match.Groups[1].Value,
                         Description = "Bonus Item",
+                        ItemAcquired = DateTime.UtcNow
                     })
                 .ToArray();
         }

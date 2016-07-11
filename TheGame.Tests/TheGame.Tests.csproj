@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="AttackItemPipelineTests.cs" />
     <Compile Include="DefensiveItemSelectorTests.cs" />
+    <Compile Include="ExpiredItemRemoverTests.cs" />
     <Compile Include="GameStateExtensions.cs" />
     <Compile Include="TooManyVotesStateProcessorTests.cs" />
     <Compile Include="PowerupSelectorTests.cs" />

@@ -52,7 +52,7 @@ namespace TheGame
         {
             MoveSelectors.Add(new DefenseSelector());
             MoveSelectors.Add(new PowerupSelector());
-            MoveSelectors.Add(new AttackSelector());
+            MoveSelectors.Add(new RobustAttackSelector());
         }
     }
 
@@ -87,21 +87,24 @@ namespace TheGame
 
         public RootStrategy()
         {
-            _leaderboardStrategy = new ManualStrategy();
+            _leaderboardStrategy = new DefensiveStrategy();
             _losingStrategy = new GrowthHackingStrategy();
         }
 
         private IStrategy InternalStrategy(GameState state)
         {
-                if (_singleStrategy != null)
-                {
-                    return _singleStrategy;
-                }
+            if (!state.PollingEnabled)
+                return new ManualStrategy();
 
-                if (state.OnLeaderboard)
-                    return _leaderboardStrategy;
-                else
-                    return _losingStrategy;
+            if (_singleStrategy != null)
+            {
+                return _singleStrategy;
+            }
+
+            if (state.OnLeaderboard)
+                return _leaderboardStrategy;
+            else
+                return _losingStrategy;
         }
 
         public Move GetMove(GameState state)
