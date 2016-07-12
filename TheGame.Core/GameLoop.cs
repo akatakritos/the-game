@@ -43,6 +43,7 @@ namespace TheGame
 
                         _state.Points = response.Points;
                         _state.LastMessages = response.Messages;
+                        CthulhuStateProcessor.ProcessState(_state);
                     }
 
 
@@ -95,7 +96,7 @@ namespace TheGame
             }
 
             TooManyVotesStateProcessor.ProcessState(_state);
-            ExpiredItemRemover.ProcessState(_state);
+            //ExpiredItemRemover.ProcessState(_state);
         }
 
 
@@ -111,6 +112,8 @@ namespace TheGame
                     await Task.Delay(100);
                     continue;
                 }
+
+                response.Messages = CthulhuStateProcessor.ProcessMessages(response.Messages).ToList();
 
                 response.LogMessages();
 
@@ -182,6 +185,8 @@ namespace TheGame
             {
                 result = UseItemResult.NullObject;
             }
+            result.Messages = CthulhuStateProcessor.ProcessMessages(result.Messages).ToList();
+
             if (result.BonusItems.Any())
             {
                 _state.Items.AddRange(result.BonusItems);

@@ -87,8 +87,10 @@ namespace TheGame
 
         public RootStrategy()
         {
-            _leaderboardStrategy = new DefensiveStrategy();
-            _losingStrategy = new GrowthHackingStrategy();
+            //_leaderboardStrategy = new DefensiveStrategy();
+            //_losingStrategy = new GrowthHackingStrategy();
+            _leaderboardStrategy = new ManualStrategy();
+            _singleStrategy = new ManualStrategy();
         }
 
         private IStrategy InternalStrategy(GameState state)

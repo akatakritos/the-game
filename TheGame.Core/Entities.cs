@@ -82,7 +82,7 @@ namespace TheGame
         public string TargetName { get; set; }
         public decimal Points { get; set; }
 
-        private static readonly Regex BonusItemRegex = new Regex(@"You found a bonus item! <([a-f0-9\-]+)> \| <(.+)>");
+        private static readonly Regex BonusItemRegex = new Regex(@"<([a-f0-9\-]+)> \| <(.+)>");
 
 
         private readonly Lazy<GameItem[]> _bonusItems;

@@ -3,23 +3,32 @@
     ViewBag.Title = "Home Page";
 }
 
-<table class="table">
-    <tr>
-        <th>Rank</th>
-        <th>Score</th>
-        <th>Player</th>
-        <th>Effects</th>
-    </tr>
-    @for(int i = 0; i < Model.Count; i++)
-    {
+@if (Model != null)
+{
+    <table class="table">
         <tr>
-            <td>@(i + 1)</td>
-            <td>@Model[i].Points</td>
-            <td>@Model[i].PlayerName</td>
-            <td>@Model[i].EffectsList()</td>
+            <th>Rank</th>
+            <th>Score</th>
+            <th>Player</th>
+            <th>Effects</th>
         </tr>
-    }
-</table>
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            <tr>
+                <td>@(i + 1)</td>
+                <td>@Model[i].Points</td>
+                <td>@Model[i].PlayerName</td>
+                <td>@Model[i].EffectsList()</td>
+            </tr>
+        }
+    </table>
+}
+else
+{
+    <div class="error">
+        <p>Someting went wrong.</p>
+    </div>
+}
 
 <script>
     (function() {
@@ -48,7 +57,7 @@
             //window.location = "/" + window.location.hash;
         }
 
-        setTimeout(refresh, 1000 * 60 * 3);
+        setTimeout(refresh, @((int)Settings.CacheDuration.TotalMilliseconds));
 
     })()
 </script>

@@ -32,12 +32,12 @@ namespace TheGame
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
             "5",
             "Foobar",
             "The foobar item does stuff",
             "4"}, -1);
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem(new string[] {
             "Foo Item",
             "mburke"}, -1);
             this.leaderboard = new System.Windows.Forms.ListView();
@@ -96,7 +96,7 @@ namespace TheGame
             // columnHeader3
             // 
             this.columnHeader3.Text = "Effects";
-            this.columnHeader3.Width = 176;
+            this.columnHeader3.Width = 300;
             // 
             // inventory
             // 
@@ -111,7 +111,7 @@ namespace TheGame
             this.inventory.FullRowSelect = true;
             this.inventory.HideSelection = false;
             this.inventory.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1});
+            listViewItem3});
             this.inventory.Location = new System.Drawing.Point(11, 271);
             this.inventory.Margin = new System.Windows.Forms.Padding(2);
             this.inventory.Name = "inventory";
@@ -191,9 +191,9 @@ namespace TheGame
             this.columnHeader9});
             this.moves.FullRowSelect = true;
             this.moves.HideSelection = false;
-            listViewItem2.Tag = "Foo Item";
+            listViewItem4.Tag = "Foo Item";
             this.moves.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem2});
+            listViewItem4});
             this.moves.Location = new System.Drawing.Point(518, 271);
             this.moves.Name = "moves";
             this.moves.Size = new System.Drawing.Size(164, 317);
